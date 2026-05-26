@@ -44,8 +44,20 @@ class CategoryService:
 
 class TaskService:
     @staticmethod
-    def get_user_tasks(user):
-        return Task.objects.filter(owner=user).order_by('-created_at')
+    def get_user_tasks(user, filters=None):
+        queryset = Task.objects.filter(owner=user)
+        
+        if filters:
+            if 'category_id' in filters and filters['category_id']:
+                queryset = queryset.filter(category_id=filters['category_id'])
+            if 'priority' in filters and filters['priority']:
+                queryset = queryset.filter(priority=filters['priority'])
+            if 'is_completed' in filters and filters['is_completed'] is not None:
+                # convert string to bool if needed
+                is_completed = filters['is_completed'].lower() == 'true' if isinstance(filters['is_completed'], str) else bool(filters['is_completed'])
+                queryset = queryset.filter(is_completed=is_completed)
+                
+        return queryset.order_by('-created_at')
 
     @staticmethod
     def create_task(user, title: str, description: str = '', priority: str = 'MEDIUM', due_date=None, category_id=None) -> Task:

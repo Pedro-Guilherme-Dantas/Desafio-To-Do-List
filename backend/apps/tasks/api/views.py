@@ -38,11 +38,39 @@ class CategoryViewSet(viewsets.ViewSet):
         
         return Response(CategorySerializer(category).data)
 
+from rest_framework.pagination import PageNumberPagination
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class TaskViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='category_id', type=int, required=False),
+            OpenApiParameter(name='priority', type=str, required=False),
+            OpenApiParameter(name='is_completed', type=bool, required=False),
+        ]
+    )
     def list(self, request):
-        tasks = TaskService.get_user_tasks(request.user)
+        filters = {
+            'category_id': request.query_params.get('category_id'),
+            'priority': request.query_params.get('priority'),
+            'is_completed': request.query_params.get('is_completed'),
+        }
+        
+        tasks = TaskService.get_user_tasks(request.user, filters)
+        
+        paginator = StandardResultsSetPagination()
+        page = paginator.paginate_queryset(tasks, request)
+        if page is not None:
+            serializer = TaskSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+            
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
 

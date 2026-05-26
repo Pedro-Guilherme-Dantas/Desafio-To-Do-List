@@ -47,17 +47,36 @@ def test_create_task(auth_client):
     assert Task.objects.first().owner == auth_client.user
 
 def test_list_tasks(auth_client):
-    Task.objects.create(title='Task 1', owner=auth_client.user)
-    Task.objects.create(title='Task 2', owner=auth_client.user)
+    cat1 = Category.objects.create(name='Cat1')
+    cat2 = Category.objects.create(name='Cat2')
+    Task.objects.create(title='Task 1', owner=auth_client.user, category=cat1, is_completed=True, priority='HIGH')
+    Task.objects.create(title='Task 2', owner=auth_client.user, category=cat2, is_completed=False, priority='LOW')
     
     other_user = User.objects.create_user(username='other', password='pw')
     Task.objects.create(title='Other Task', owner=other_user)
     
     url = reverse('task-list')
+    
+    # Test standard list (should be paginated)
     response = auth_client.get(url)
     assert response.status_code == 200
-    # Should only list tasks owned by the authenticated user (MVP sharing not active yet in this endpoint)
-    assert len(response.data) == 2
+    assert 'results' in response.data
+    assert len(response.data['results']) == 2
+    
+    # Test filtering by is_completed
+    response = auth_client.get(f"{url}?is_completed=true")
+    assert len(response.data['results']) == 1
+    assert response.data['results'][0]['title'] == 'Task 1'
+    
+    # Test filtering by priority
+    response = auth_client.get(f"{url}?priority=LOW")
+    assert len(response.data['results']) == 1
+    assert response.data['results'][0]['title'] == 'Task 2'
+    
+    # Test filtering by category_id
+    response = auth_client.get(f"{url}?category_id={cat1.id}")
+    assert len(response.data['results']) == 1
+    assert response.data['results'][0]['title'] == 'Task 1'
 
 def test_update_category(auth_client):
     category = Category.objects.create(name='OldName')
