@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     
     # Local
     'apps.users.apps.UsersConfig',
-    # 'apps.tasks.apps.TasksConfig',
+    'apps.tasks.apps.TasksConfig',
     # 'apps.notifications.apps.NotificationsConfig',
 ]
 
@@ -154,3 +154,10 @@ CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.environ.get('REDIS_URL', 'redis://localhost:6379/0'),
+    }
+}

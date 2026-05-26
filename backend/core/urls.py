@@ -27,4 +27,5 @@ urlpatterns = [
     
     # API endpoints
     path('api/users/', include('apps.users.api.urls')),
+    path('api/', include('apps.tasks.api.urls')),
 ]
