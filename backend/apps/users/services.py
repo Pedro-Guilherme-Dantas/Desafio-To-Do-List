@@ -18,3 +18,29 @@ class UserService:
             password=password
         )
         return user
+
+    @staticmethod
+    def update_user(user: User, **kwargs) -> User:
+        username = kwargs.get('username')
+        email = kwargs.get('email')
+        
+        if username and username != user.username:
+            if User.objects.filter(username=username).exists():
+                raise ValidationError("A user with that username already exists.")
+            user.username = username
+            
+        if email and email != user.email:
+            if User.objects.filter(email=email).exists():
+                raise ValidationError("A user with that email already exists.")
+            user.email = email
+            
+        if 'password' in kwargs and kwargs['password']:
+            user.set_password(kwargs['password'])
+            
+        user.save()
+        return user
+
+    @staticmethod
+    def delete_user(user: User):
+        user.delete()
+        return True
