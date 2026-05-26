@@ -34,3 +34,28 @@ def test_user_login(client):
     assert response.status_code == 200
     assert 'access' in response.data
     assert 'refresh' in response.data
+
+def test_user_profile_crud(client):
+    user = User.objects.create_user(username='cruduser', email='crud@example.com', password='pw')
+    from rest_framework.test import APIClient
+    auth_client = APIClient()
+    auth_client.force_authenticate(user=user)
+
+    url = reverse('user-profile')
+
+    # GET
+    response = auth_client.get(url)
+    assert response.status_code == 200
+    assert response.data['username'] == 'cruduser'
+
+    # PATCH
+    response = auth_client.patch(url, {'username': 'newcrud'}, format='json')
+    assert response.status_code == 200
+    assert response.data['username'] == 'newcrud'
+    user.refresh_from_db()
+    assert user.username == 'newcrud'
+
+    # DELETE
+    response = auth_client.delete(url)
+    assert response.status_code == 204
+    assert not User.objects.filter(username='newcrud').exists()
