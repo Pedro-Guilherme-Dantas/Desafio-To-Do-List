@@ -23,6 +23,21 @@ class CategoryViewSet(viewsets.ViewSet):
         
         return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
 
+    def update(self, request, pk=None):
+        return self.partial_update(request, pk)
+
+    def partial_update(self, request, pk=None):
+        serializer = CategorySerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        
+        category = CategoryService.update_category(
+            category_id=pk,
+            name=serializer.validated_data.get('name'),
+            color=serializer.validated_data.get('color')
+        )
+        
+        return Response(CategorySerializer(category).data)
+
 class TaskViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -45,6 +60,21 @@ class TaskViewSet(viewsets.ViewSet):
         )
         
         return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, pk=None):
+        return self.partial_update(request, pk)
+
+    def partial_update(self, request, pk=None):
+        serializer = TaskSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        
+        task = TaskService.update_task(
+            user=request.user,
+            task_id=pk,
+            **serializer.validated_data
+        )
+        
+        return Response(TaskSerializer(task).data)
 
     def destroy(self, request, pk=None):
         TaskService.delete_task(user=request.user, task_id=pk)

@@ -58,3 +58,22 @@ def test_list_tasks(auth_client):
     assert response.status_code == 200
     # Should only list tasks owned by the authenticated user (MVP sharing not active yet in this endpoint)
     assert len(response.data) == 2
+
+def test_update_category(auth_client):
+    category = Category.objects.create(name='OldName')
+    url = reverse('category-detail', args=[category.id])
+    data = {'name': 'NewName'}
+    response = auth_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    category.refresh_from_db()
+    assert category.name == 'NewName'
+
+def test_update_task(auth_client):
+    task = Task.objects.create(title='Old Title', owner=auth_client.user)
+    url = reverse('task-detail', args=[task.id])
+    data = {'title': 'New Title', 'priority': 'HIGH'}
+    response = auth_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    task.refresh_from_db()
+    assert task.title == 'New Title'
+    assert task.priority == 'HIGH'

@@ -24,6 +24,24 @@ class CategoryService:
         cache.delete(cls.CACHE_KEY) # Invalidate cache
         return category
 
+    @classmethod
+    def update_category(cls, category_id: int, name: str = None, color: str = None) -> Category:
+        category = Category.objects.filter(id=category_id).first()
+        if not category:
+            raise ValidationError("Category not found.")
+            
+        if name and name.lower() != category.name.lower():
+            if Category.objects.filter(name__iexact=name).exists():
+                raise ValidationError("A category with this name already exists.")
+            category.name = name
+            
+        if color:
+            category.color = color
+            
+        category.save()
+        cache.delete(cls.CACHE_KEY)
+        return category
+
 class TaskService:
     @staticmethod
     def get_user_tasks(user):
@@ -45,6 +63,29 @@ class TaskService:
             due_date=due_date,
             category=category
         )
+        return task
+
+    @staticmethod
+    def update_task(user, task_id: int, **kwargs) -> Task:
+        task = Task.objects.filter(id=task_id, owner=user).first()
+        if not task:
+            raise ValidationError("Task not found or you don't have permission to update it.")
+            
+        if 'category_id' in kwargs:
+            cat_id = kwargs.pop('category_id')
+            if cat_id is not None:
+                category = Category.objects.filter(id=cat_id).first()
+                if not category:
+                    raise ValidationError("Category not found.")
+                task.category = category
+            else:
+                task.category = None
+
+        for field, value in kwargs.items():
+            if hasattr(task, field):
+                setattr(task, field, value)
+                
+        task.save()
         return task
 
     @staticmethod
