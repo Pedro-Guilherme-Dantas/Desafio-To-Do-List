@@ -3,15 +3,19 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import CategorySerializer, TaskSerializer
 from apps.tasks.services import CategoryService, TaskService
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework.pagination import PageNumberPagination
 
 class CategoryViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(responses={200: CategorySerializer(many=True)})
     def list(self, request):
         categories = CategoryService.get_all_categories()
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
+    @extend_schema(request=CategorySerializer, responses={201: CategorySerializer})
     def create(self, request):
         serializer = CategorySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -23,9 +27,11 @@ class CategoryViewSet(viewsets.ViewSet):
         
         return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(request=CategorySerializer, responses={200: CategorySerializer})
     def update(self, request, pk=None):
         return self.partial_update(request, pk)
 
+    @extend_schema(request=CategorySerializer, responses={200: CategorySerializer})
     def partial_update(self, request, pk=None):
         serializer = CategorySerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -74,6 +80,7 @@ class TaskViewSet(viewsets.ViewSet):
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
 
+    @extend_schema(request=TaskSerializer, responses={201: TaskSerializer})
     def create(self, request):
         serializer = TaskSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -89,9 +96,11 @@ class TaskViewSet(viewsets.ViewSet):
         
         return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(request=TaskSerializer, responses={200: TaskSerializer})
     def update(self, request, pk=None):
         return self.partial_update(request, pk)
 
+    @extend_schema(request=TaskSerializer, responses={200: TaskSerializer})
     def partial_update(self, request, pk=None):
         serializer = TaskSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -104,6 +113,7 @@ class TaskViewSet(viewsets.ViewSet):
         
         return Response(TaskSerializer(task).data)
 
+    @extend_schema(responses={204: None})
     def destroy(self, request, pk=None):
         TaskService.delete_task(user=request.user, task_id=pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
