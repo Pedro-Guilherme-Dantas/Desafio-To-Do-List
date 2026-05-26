@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: todo_user
+      POSTGRES_PASSWORD: todo_password
+      POSTGRES_DB: todo_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ../backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_HOST=db
+      - DB_NAME=todo_db
+      - DB_USER=todo_user
+      - DB_PASSWORD=todo_password
+      - REDIS_URL=redis://redis:6379/0
+
+  celery_worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: celery -A core worker -l info
+    volumes:
+      - ../backend:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_HOST=db
+      - DB_NAME=todo_db
+      - DB_USER=todo_user
+      - DB_PASSWORD=todo_password
+      - REDIS_URL=redis://redis:6379/0
+
+volumes:
+  postgres_data:
