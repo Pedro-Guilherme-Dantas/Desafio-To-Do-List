@@ -48,3 +48,41 @@ class ProfileView(APIView):
     def delete(self, request):
         UserService.delete_user(request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+from rest_framework import viewsets
+from apps.users.services import FriendshipService
+from .serializers import FriendshipSerializer
+
+class FriendshipViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={200: FriendshipSerializer(many=True)})
+    def list(self, request):
+        friends = FriendshipService.get_friends(request.user)
+        serializer = FriendshipSerializer(friends, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    @extend_schema(request={'type': 'object', 'properties': {'to_user_id': {'type': 'integer'}}}, responses={201: FriendshipSerializer})
+    def create(self, request):
+        to_user_id = request.data.get('to_user_id')
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        to_user = User.objects.filter(id=to_user_id).first()
+        if not to_user:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+            
+        friendship = FriendshipService.send_invite(request.user, to_user)
+        return Response(FriendshipSerializer(friendship, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(responses={204: None})
+    def destroy(self, request, pk=None):
+        FriendshipService.remove_friendship(request.user, pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class FriendshipAcceptView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={200: FriendshipSerializer})
+    def post(self, request, from_user_id):
+        friendship = FriendshipService.accept_invite(request.user, from_user_id)
+        return Response(FriendshipSerializer(friendship, context={'request': request}).data)
