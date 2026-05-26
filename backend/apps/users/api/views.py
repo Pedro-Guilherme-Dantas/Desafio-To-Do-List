@@ -65,13 +65,11 @@ class FriendshipViewSet(viewsets.ViewSet):
     @extend_schema(request={'type': 'object', 'properties': {'to_user_id': {'type': 'integer'}}}, responses={201: FriendshipSerializer})
     def create(self, request):
         to_user_id = request.data.get('to_user_id')
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        to_user = User.objects.filter(id=to_user_id).first()
-        if not to_user:
-            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if not to_user_id:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("to_user_id is required.")
             
-        friendship = FriendshipService.send_invite(request.user, to_user)
+        friendship = FriendshipService.send_invite(request.user, to_user_id)
         return Response(FriendshipSerializer(friendship, context={'request': request}).data, status=status.HTTP_201_CREATED)
 
     @extend_schema(responses={204: None})

@@ -48,7 +48,11 @@ class UserService:
 
 class FriendshipService:
     @staticmethod
-    def send_invite(from_user: User, to_user: User) -> Friendship:
+    def send_invite(from_user: User, to_user_id: int) -> Friendship:
+        to_user = User.objects.filter(id=to_user_id).first()
+        if not to_user:
+            raise ValidationError("Target user not found.")
+            
         if from_user == to_user:
             raise ValidationError("You cannot send a friend request to yourself.")
             
