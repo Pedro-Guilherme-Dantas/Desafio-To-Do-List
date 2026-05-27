@@ -23,7 +23,7 @@ def test_user_registration(client):
 
 def test_user_login(client):
     # First create a user
-    user = User.objects.create_user(username='loginuser', email='login@example.com', password='strongpassword123')
+    User.objects.create_user(username='loginuser', email='login@example.com', password='strongpassword123')
     
     url = reverse('token_obtain_pair')
     data = {

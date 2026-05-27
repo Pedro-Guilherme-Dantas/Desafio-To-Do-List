@@ -4,8 +4,10 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from drf_spectacular.utils import extend_schema
 
-from .serializers import RegisterSerializer, UserSerializer
-from apps.users.services import UserService
+from .serializers import RegisterSerializer, UserSerializer, FriendshipSerializer
+from apps.users.services import UserService, FriendshipService
+from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -49,9 +51,7 @@ class ProfileView(APIView):
         UserService.delete_user(request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-from rest_framework import viewsets
-from apps.users.services import FriendshipService
-from .serializers import FriendshipSerializer
+
 
 class FriendshipViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
@@ -66,7 +66,6 @@ class FriendshipViewSet(viewsets.ViewSet):
     def create(self, request):
         to_user_id = request.data.get('to_user_id')
         if not to_user_id:
-            from rest_framework.exceptions import ValidationError
             raise ValidationError("to_user_id is required.")
             
         friendship = FriendshipService.send_invite(request.user, to_user_id)

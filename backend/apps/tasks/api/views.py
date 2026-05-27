@@ -44,8 +44,6 @@ class CategoryViewSet(viewsets.ViewSet):
         
         return Response(CategorySerializer(category).data)
 
-from rest_framework.pagination import PageNumberPagination
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10

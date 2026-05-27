@@ -1,5 +1,4 @@
 from django.core.cache import cache
-from django.db import models
 from rest_framework.exceptions import ValidationError
 from .models import Category, Task
 
