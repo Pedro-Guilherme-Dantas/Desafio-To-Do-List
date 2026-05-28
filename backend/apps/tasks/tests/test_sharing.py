@@ -104,3 +104,20 @@ def test_friendship_removal_unlinks_tasks(auth_client1, user1, user2, task, frie
     
     # Ensure participation is removed
     assert not TaskParticipation.objects.filter(task=task, user=user2).exists()
+
+@pytest.mark.django_db
+def test_share_task_invalid_role(auth_client1, user2, task, friendship):
+    url = reverse('taskparticipation-list', kwargs={'task_pk': task.id})
+    data = {'user_id': user2.id, 'role': 'HACKER'}
+    response = auth_client1.post(url, data, format='json')
+    assert response.status_code == 400
+    assert not TaskParticipation.objects.filter(task=task, user=user2).exists()
+
+@pytest.mark.django_db
+def test_participant_can_unshare_themselves(auth_client2, user2, task, friendship):
+    TaskParticipation.objects.create(task=task, user=user2, role='VIEWER')
+    
+    url = reverse('taskparticipation-detail', kwargs={'task_pk': task.id, 'pk': user2.id})
+    response = auth_client2.delete(url)
+    assert response.status_code == 204
+    assert not TaskParticipation.objects.filter(task=task, user=user2).exists()

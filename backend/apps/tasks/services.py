@@ -104,6 +104,10 @@ class TaskService:
             else:
                 task.category = None
 
+        # Prevent modifying critical fields
+        for forbidden in ['id', 'owner', 'owner_id', 'created_at', 'updated_at']:
+            kwargs.pop(forbidden, None)
+
         for field, value in kwargs.items():
             if hasattr(task, field):
                 setattr(task, field, value)
@@ -151,6 +155,9 @@ class SharingService:
             raise ValidationError("You can only share tasks with your friends.")
             
         from .models import TaskParticipation
+        if role not in dict(TaskParticipation.ROLE_CHOICES):
+            raise ValidationError("Invalid role. Must be 'EDITOR' or 'VIEWER'.")
+            
         participation, created = TaskParticipation.objects.update_or_create(
             task=task,
             user=target_user,
@@ -163,12 +170,19 @@ class SharingService:
         return participation
 
     @staticmethod
-    def unshare_task(owner, task_id: int, target_user_id: int):
+    def unshare_task(user, task_id: int, target_user_id: int):
         from .models import TaskParticipation
-        TaskParticipation.objects.filter(task_id=task_id, task__owner=owner, user_id=target_user_id).delete()
+        participation = TaskParticipation.objects.filter(task_id=task_id, user_id=target_user_id).select_related('task').first()
+        if not participation:
+            raise ValidationError("Participant not found in this task.")
+            
+        if participation.task.owner != user and user.id != target_user_id:
+            raise ValidationError("You do not have permission to remove this participant.")
+            
+        participation.delete()
         
         from apps.notifications.services import NotificationService
-        NotificationService.notify('TASK_UNSHARED', {'task_id': task_id, 'owner_id': owner.id, 'target_user_id': target_user_id})
+        NotificationService.notify('TASK_UNSHARED', {'task_id': task_id, 'owner_id': participation.task.owner.id, 'target_user_id': target_user_id})
 
     @staticmethod
     def add_comment(user, task_id: int, text: str):

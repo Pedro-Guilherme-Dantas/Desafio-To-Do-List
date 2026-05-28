@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
-from .serializers import RegisterSerializer, UserSerializer, FriendshipSerializer
+from .serializers import RegisterSerializer, UserSerializer, FriendshipSerializer, UserUpdateSerializer
 from apps.users.services import UserService, FriendshipService
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 from rest_framework.exceptions import ValidationError
 
 @extend_schema_view(
@@ -42,16 +42,16 @@ class ProfileView(APIView):
     def get(self, request):
         return Response(UserSerializer(request.user).data)
 
-    @extend_schema(request=RegisterSerializer, responses={200: UserSerializer})
+    @extend_schema(request=UserUpdateSerializer, responses={200: UserSerializer})
     def put(self, request):
-        serializer = RegisterSerializer(data=request.data, partial=False)
+        serializer = UserUpdateSerializer(data=request.data, partial=False)
         serializer.is_valid(raise_exception=True)
         user = UserService.update_user(request.user, **serializer.validated_data)
         return Response(UserSerializer(user).data)
 
-    @extend_schema(request=RegisterSerializer, responses={200: UserSerializer})
+    @extend_schema(request=UserUpdateSerializer, responses={200: UserSerializer})
     def patch(self, request):
-        serializer = RegisterSerializer(data=request.data, partial=True)
+        serializer = UserUpdateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         user = UserService.update_user(request.user, **serializer.validated_data)
         return Response(UserSerializer(user).data)
@@ -76,7 +76,10 @@ class FriendshipViewSet(viewsets.ViewSet):
         serializer = FriendshipSerializer(friends, many=True, context={'request': request})
         return Response(serializer.data)
 
-    @extend_schema(request={'type': 'object', 'properties': {'to_user_id': {'type': 'integer'}}}, responses={201: FriendshipSerializer})
+    class FriendshipInviteSerializer(serializers.Serializer):
+        to_user_id = serializers.IntegerField()
+
+    @extend_schema(request=FriendshipInviteSerializer, responses={201: FriendshipSerializer})
     def create(self, request):
         to_user_id = request.data.get('to_user_id')
         if not to_user_id:

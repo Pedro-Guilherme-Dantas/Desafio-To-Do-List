@@ -15,6 +15,11 @@ class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
+class UserUpdateSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150, required=False)
+    email = serializers.EmailField(required=False)
+    password = serializers.CharField(write_only=True, required=False, style={'input_type': 'password'})
+
 
 class FriendshipSerializer(serializers.ModelSerializer):
     friend = serializers.SerializerMethodField()
@@ -23,6 +28,8 @@ class FriendshipSerializer(serializers.ModelSerializer):
         model = Friendship
         fields = ('id', 'friend', 'status', 'created_at')
         
+    from drf_spectacular.utils import extend_schema_field
+    @extend_schema_field(UserSerializer)
     def get_friend(self, obj):
         # Determine which user is the friend from the perspective of the request user
         request_user = self.context['request'].user

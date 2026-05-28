@@ -96,3 +96,16 @@ def test_update_task(auth_client):
     task.refresh_from_db()
     assert task.title == 'New Title'
     assert task.priority == 'HIGH'
+
+def test_update_task_ignores_protected_fields(auth_client):
+    task = Task.objects.create(title='Secure Task', owner=auth_client.user)
+    other_user = User.objects.create_user(username='hacker', password='pw')
+    
+    url = reverse('task-detail', args=[task.id])
+    data = {'title': 'Hacked Task', 'owner_id': other_user.id}
+    response = auth_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    
+    task.refresh_from_db()
+    assert task.title == 'Hacked Task'
+    assert task.owner_id == auth_client.user.id  # Owner shouldn't change
