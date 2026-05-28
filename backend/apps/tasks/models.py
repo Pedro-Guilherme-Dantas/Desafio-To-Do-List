@@ -33,3 +33,32 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+class TaskParticipation(models.Model):
+    ROLE_CHOICES = [
+        ('VIEWER', 'Viewer'),
+        ('COMMENTER', 'Commenter'),
+        ('EDITOR', 'Editor'),
+    ]
+    
+    task = models.ForeignKey(Task, related_name='participations', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='shared_tasks', on_delete=models.CASCADE)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='VIEWER')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('task', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.task.title} ({self.role})"
+
+class Comment(models.Model):
+    task = models.ForeignKey(Task, related_name='comments', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='task_comments', on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.task.title}"
