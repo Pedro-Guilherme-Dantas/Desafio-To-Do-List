@@ -36,3 +36,10 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'user', 'text', 'created_at')
+
+class TaskParticipationInputSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    role = serializers.ChoiceField(choices=TaskParticipation.ROLE_CHOICES, default='VIEWER')
+
+class CommentInputSerializer(serializers.Serializer):
+    text = serializers.CharField()

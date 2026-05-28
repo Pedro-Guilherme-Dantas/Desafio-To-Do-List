@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import CategorySerializer, TaskSerializer, TaskParticipationSerializer, CommentSerializer
+from .serializers import CategorySerializer, TaskSerializer, TaskParticipationSerializer, CommentSerializer, TaskParticipationInputSerializer, CommentInputSerializer
 from apps.tasks.services import CategoryService, TaskService, SharingService
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework.pagination import PageNumberPagination
@@ -136,7 +136,7 @@ class TaskViewSet(viewsets.ViewSet):
 class TaskParticipationViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(request={'type': 'object', 'properties': {'user_id': {'type': 'integer'}, 'role': {'type': 'string'}}}, responses={201: TaskParticipationSerializer})
+    @extend_schema(request=TaskParticipationInputSerializer, responses={201: TaskParticipationSerializer})
     def create(self, request, task_pk=None):
         user_id = request.data.get('user_id')
         role = request.data.get('role', 'VIEWER')
@@ -158,7 +158,7 @@ class TaskParticipationViewSet(viewsets.ViewSet):
 class CommentViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(request={'type': 'object', 'properties': {'text': {'type': 'string'}}}, responses={201: CommentSerializer})
+    @extend_schema(request=CommentInputSerializer, responses={201: CommentSerializer})
     def create(self, request, task_pk=None):
         text = request.data.get('text')
         if not text:
