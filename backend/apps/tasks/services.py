@@ -44,7 +44,10 @@ class CategoryService:
 class TaskService:
     @staticmethod
     def get_user_tasks(user, filters=None):
-        queryset = Task.objects.filter(owner=user)
+        from django.db.models import Q
+        queryset = Task.objects.filter(
+            Q(owner=user) | Q(participations__user=user)
+        ).distinct()
         
         if filters:
             if 'category_id' in filters and filters['category_id']:
@@ -74,11 +77,20 @@ class TaskService:
             due_date=due_date,
             category=category
         )
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('TASK_CREATED', {'task_id': task.id, 'owner_id': user.id})
+        
         return task
 
     @staticmethod
     def update_task(user, task_id: int, **kwargs) -> Task:
-        task = Task.objects.filter(id=task_id, owner=user).first()
+        from django.db.models import Q
+        task = Task.objects.filter(
+            id=task_id
+        ).filter(
+            Q(owner=user) | Q(participations__user=user, participations__role='EDITOR')
+        ).first()
         if not task:
             raise ValidationError("Task not found or you don't have permission to update it.")
             
@@ -97,6 +109,10 @@ class TaskService:
                 setattr(task, field, value)
                 
         task.save()
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('TASK_UPDATED', {'task_id': task.id, 'user_id': user.id})
+        
         return task
 
     @staticmethod
@@ -105,4 +121,70 @@ class TaskService:
         if not task:
             raise ValidationError("Task not found or you don't have permission to delete it.")
         task.delete()
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('TASK_DELETED', {'task_id': task_id, 'owner_id': user.id})
+        
         return True
+
+class SharingService:
+    @staticmethod
+    def share_task(owner, task_id: int, target_user_id: int, role: str):
+        from apps.users.models import Friendship, User
+        from django.db.models import Q
+        
+        task = Task.objects.filter(id=task_id, owner=owner).first()
+        if not task:
+            raise ValidationError("Task not found or you don't have permission to share it.")
+            
+        target_user = User.objects.filter(id=target_user_id).first()
+        if not target_user:
+            raise ValidationError("Target user not found.")
+            
+        is_friend = Friendship.objects.filter(
+            status='ACCEPTED'
+        ).filter(
+            Q(user1=owner, user2=target_user) | Q(user1=target_user, user2=owner)
+        ).exists()
+        
+        if not is_friend:
+            raise ValidationError("You can only share tasks with your friends.")
+            
+        from .models import TaskParticipation
+        participation, created = TaskParticipation.objects.update_or_create(
+            task=task,
+            user=target_user,
+            defaults={'role': role}
+        )
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('TASK_SHARED', {'task_id': task.id, 'owner_id': owner.id, 'target_user_id': target_user.id, 'role': role})
+        
+        return participation
+
+    @staticmethod
+    def unshare_task(owner, task_id: int, target_user_id: int):
+        from .models import TaskParticipation
+        TaskParticipation.objects.filter(task_id=task_id, task__owner=owner, user_id=target_user_id).delete()
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('TASK_UNSHARED', {'task_id': task_id, 'owner_id': owner.id, 'target_user_id': target_user_id})
+
+    @staticmethod
+    def add_comment(user, task_id: int, text: str):
+        from .models import Comment, TaskParticipation
+        task = Task.objects.filter(id=task_id).first()
+        if not task:
+            raise ValidationError("Task not found.")
+            
+        if task.owner != user:
+            participation = TaskParticipation.objects.filter(task=task, user=user).first()
+            if not participation or participation.role == 'VIEWER':
+                raise ValidationError("You do not have permission to comment on this task.")
+                
+        comment = Comment.objects.create(task=task, user=user, text=text)
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('COMMENT_ADDED', {'task_id': task.id, 'user_id': user.id, 'comment_id': comment.id})
+        
+        return comment

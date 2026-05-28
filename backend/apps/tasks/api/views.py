@@ -1,8 +1,8 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import CategorySerializer, TaskSerializer
-from apps.tasks.services import CategoryService, TaskService
+from .serializers import CategorySerializer, TaskSerializer, TaskParticipationSerializer, CommentSerializer
+from apps.tasks.services import CategoryService, TaskService, SharingService
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.pagination import PageNumberPagination
 
@@ -115,3 +115,35 @@ class TaskViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         TaskService.delete_task(user=request.user, task_id=pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class TaskParticipationViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(request={'type': 'object', 'properties': {'user_id': {'type': 'integer'}, 'role': {'type': 'string'}}}, responses={201: TaskParticipationSerializer})
+    def create(self, request, task_pk=None):
+        user_id = request.data.get('user_id')
+        role = request.data.get('role', 'VIEWER')
+        if not user_id:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("user_id is required.")
+            
+        participation = SharingService.share_task(request.user, task_pk, user_id, role)
+        return Response(TaskParticipationSerializer(participation).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(responses={204: None})
+    def destroy(self, request, pk=None, task_pk=None):
+        SharingService.unshare_task(request.user, task_pk, pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class CommentViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(request={'type': 'object', 'properties': {'text': {'type': 'string'}}}, responses={201: CommentSerializer})
+    def create(self, request, task_pk=None):
+        text = request.data.get('text')
+        if not text:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("text is required.")
+            
+        comment = SharingService.add_comment(request.user, task_pk, text)
+        return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)

@@ -18,6 +18,10 @@ class UserService:
             email=email,
             password=password
         )
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('USER_REGISTERED', {'user_id': user.id, 'username': user.username})
+        
         return user
 
     @staticmethod
@@ -64,7 +68,12 @@ class FriendshipService:
         if Friendship.objects.filter(user1=from_user, user2=to_user).exists():
             raise ValidationError("You have already sent a request to this user.")
             
-        return Friendship.objects.create(user1=from_user, user2=to_user, status='PENDING')
+        friendship = Friendship.objects.create(user1=from_user, user2=to_user, status='PENDING')
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('FRIEND_INVITE_SENT', {'from_user_id': from_user.id, 'to_user_id': to_user.id})
+        
+        return friendship
 
     @staticmethod
     def accept_invite(user: User, from_user_id: int) -> Friendship:
@@ -74,6 +83,10 @@ class FriendshipService:
             
         friendship.status = 'ACCEPTED'
         friendship.save()
+        
+        from apps.notifications.services import NotificationService
+        NotificationService.notify('FRIEND_INVITE_ACCEPTED', {'user_id': user.id, 'friend_id': from_user_id})
+        
         return friendship
 
     @staticmethod
@@ -96,4 +109,10 @@ class FriendshipService:
             raise ValidationError("Friendship not found.")
             
         friendship.delete()
+        
+        # Unlink tasks (US4 requirement)
+        from apps.tasks.models import TaskParticipation
+        TaskParticipation.objects.filter(task__owner=user, user_id=friend_id).delete()
+        TaskParticipation.objects.filter(task__owner_id=friend_id, user=user).delete()
+        
         return True
