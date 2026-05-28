@@ -4,3 +4,19 @@ specs/
 *.spec.md
 *.plan.md
 *.tasks.md
+
+# Node
+node_modules/
+dist/
+build/
+*.log
+.env*
+coverage/
+
+# Misc
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
