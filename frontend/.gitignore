@@ -1,0 +1,6 @@
+# Especificações e arquivos gerados pelo SpecKit
+specs/
+.specify/memory/specs/
+*.spec.md
+*.plan.md
+*.tasks.md
