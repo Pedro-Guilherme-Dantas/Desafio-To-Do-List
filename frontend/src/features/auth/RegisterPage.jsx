@@ -11,6 +11,21 @@ const RegisterPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  const getErrorMessage = (error) => {
+    if (!error) return null
+    if (error.response?.data) {
+      const data = error.response.data
+      if (typeof data === 'string') return data
+      if (typeof data === 'object') {
+        // Formatar erros típicos de APIs (ex: { username: ["Já existe"], email: ["Inválido"] })
+        return Object.entries(data)
+          .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(', ') : val}`)
+          .join(' | ')
+      }
+    }
+    return error.message || 'Erro desconhecido'
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -32,7 +47,8 @@ const RegisterPage = () => {
         
         {registerError && (
           <div className="alert alert-danger" role="alert">
-            Erro ao criar a conta. Tente novamente.
+            <strong>Erro ao criar a conta:</strong> <br />
+            {getErrorMessage(registerError)}
           </div>
         )}
 

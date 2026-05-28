@@ -12,6 +12,21 @@ const LoginPage = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
+  const getErrorMessage = (error) => {
+    if (!error) return null
+    if (error.response?.data) {
+      const data = error.response.data
+      if (typeof data === 'string') return data
+      if (typeof data === 'object') {
+        // Formatar erros de API de login (ex: credenciais inválidas)
+        return Object.entries(data)
+          .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(', ') : val}`)
+          .join(' | ')
+      }
+    }
+    return error.message || 'Erro desconhecido'
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -34,7 +49,8 @@ const LoginPage = () => {
         
         {loginError && (
           <div className="alert alert-danger" role="alert">
-            Credenciais inválidas ou erro no servidor.
+            <strong>Falha na autenticação:</strong> <br />
+            {getErrorMessage(loginError)}
           </div>
         )}
 
