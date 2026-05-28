@@ -59,7 +59,7 @@ class TaskService:
                 is_completed = filters['is_completed'].lower() == 'true' if isinstance(filters['is_completed'], str) else bool(filters['is_completed'])
                 queryset = queryset.filter(is_completed=is_completed)
                 
-        return queryset.order_by('-created_at')
+        return queryset.select_related('owner', 'category').prefetch_related('participations__user').order_by('-created_at')
 
     @staticmethod
     def create_task(user, title: str, description: str = '', priority: str = 'MEDIUM', due_date=None, category_id=None) -> Task:

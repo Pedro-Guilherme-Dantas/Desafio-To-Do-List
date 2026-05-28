@@ -96,7 +96,7 @@ class FriendshipService:
         return Friendship.objects.filter(
             Q(user1=user) | Q(user2=user),
             status='ACCEPTED'
-        )
+        ).select_related('user1', 'user2')
 
     @staticmethod
     def remove_friendship(user: User, friend_id: int):

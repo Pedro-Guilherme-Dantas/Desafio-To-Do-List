@@ -2,13 +2,16 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .serializers import RegisterSerializer, UserSerializer, FriendshipSerializer
 from apps.users.services import UserService, FriendshipService
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 
+@extend_schema_view(
+    post=extend_schema(tags=['Authentication'], summary="User Registration")
+)
 class RegisterView(APIView):
     permission_classes = [AllowAny]
     
@@ -26,6 +29,12 @@ class RegisterView(APIView):
         
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
+@extend_schema_view(
+    get=extend_schema(tags=['Users'], summary="Get Current User Profile"),
+    put=extend_schema(tags=['Users'], summary="Update User Profile Completely"),
+    patch=extend_schema(tags=['Users'], summary="Update User Profile Partially"),
+    delete=extend_schema(tags=['Users'], summary="Delete Current User")
+)
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -53,6 +62,11 @@ class ProfileView(APIView):
 
 
 
+@extend_schema_view(
+    list=extend_schema(tags=['Friendships'], summary="List User Friends"),
+    create=extend_schema(tags=['Friendships'], summary="Send Friendship Invite"),
+    destroy=extend_schema(tags=['Friendships'], summary="Remove Friendship or Reject Invite")
+)
 class FriendshipViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -76,6 +90,9 @@ class FriendshipViewSet(viewsets.ViewSet):
         FriendshipService.remove_friendship(request.user, pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+@extend_schema_view(
+    post=extend_schema(tags=['Friendships'], summary="Accept Friendship Invite")
+)
 class FriendshipAcceptView(APIView):
     permission_classes = [IsAuthenticated]
 

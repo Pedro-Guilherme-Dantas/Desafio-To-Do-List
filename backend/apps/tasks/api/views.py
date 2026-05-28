@@ -3,9 +3,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import CategorySerializer, TaskSerializer, TaskParticipationSerializer, CommentSerializer
 from apps.tasks.services import CategoryService, TaskService, SharingService
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework.pagination import PageNumberPagination
 
+@extend_schema_view(
+    list=extend_schema(tags=['Categories'], summary="List all categories"),
+    create=extend_schema(tags=['Categories'], summary="Create a category"),
+    update=extend_schema(tags=['Categories'], summary="Update a category completely"),
+    partial_update=extend_schema(tags=['Categories'], summary="Update a category partially")
+)
 class CategoryViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -50,6 +56,13 @@ class StandardResultsSetPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+@extend_schema_view(
+    list=extend_schema(tags=['Tasks'], summary="List tasks with filters"),
+    create=extend_schema(tags=['Tasks'], summary="Create a new task"),
+    update=extend_schema(tags=['Tasks'], summary="Update a task completely"),
+    partial_update=extend_schema(tags=['Tasks'], summary="Update a task partially"),
+    destroy=extend_schema(tags=['Tasks'], summary="Delete a task")
+)
 class TaskViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -116,6 +129,10 @@ class TaskViewSet(viewsets.ViewSet):
         TaskService.delete_task(user=request.user, task_id=pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+@extend_schema_view(
+    create=extend_schema(tags=['Sharing'], summary="Share task with a user"),
+    destroy=extend_schema(tags=['Sharing'], summary="Remove user from task")
+)
 class TaskParticipationViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -135,6 +152,9 @@ class TaskParticipationViewSet(viewsets.ViewSet):
         SharingService.unshare_task(request.user, task_pk, pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+@extend_schema_view(
+    create=extend_schema(tags=['Comments'], summary="Add a comment to a task")
+)
 class CommentViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
