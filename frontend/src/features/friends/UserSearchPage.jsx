@@ -142,18 +142,29 @@ const UserSearchPage = () => {
                         <span className="badge bg-secondary">Friends</span>
                       ) : relationship?.status === 'PENDING' ? (
                         <div className="d-flex gap-2">
-                          <button 
-                            className="btn btn-sm btn-success" 
-                            onClick={() => handleRespond(relationship.id, 'ACCEPTED')}
-                          >
-                            {t('friends.status.ACCEPTED', 'Accept')}
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-danger" 
-                            onClick={() => handleRespond(relationship.id, 'REJECTED')}
-                          >
-                            {t('friends.status.REJECTED', 'Reject')}
-                          </button>
+                          {relationship.is_initiator || isSent ? (
+                            <button 
+                              className="btn btn-sm btn-danger" 
+                              onClick={() => handleRespond(relationship.id, 'REJECTED')}
+                            >
+                              {t('friends.status.cancel', 'Cancel')}
+                            </button>
+                          ) : (
+                            <>
+                              <button 
+                                className="btn btn-sm btn-success" 
+                                onClick={() => handleRespond(relationship.id, 'ACCEPTED')}
+                              >
+                                {t('friends.status.ACCEPTED', 'Accept')}
+                              </button>
+                              <button 
+                                className="btn btn-sm btn-danger" 
+                                onClick={() => handleRespond(relationship.id, 'REJECTED')}
+                              >
+                                {t('friends.status.REJECTED', 'Reject')}
+                              </button>
+                            </>
+                          )}
                         </div>
                       ) : isSent ? (
                         <button className="btn btn-sm btn-secondary" disabled>

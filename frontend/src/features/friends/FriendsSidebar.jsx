@@ -67,22 +67,35 @@ const FriendsSidebar = () => {
                 </div>
                 {friendship.status === 'PENDING' && (
                   <div className="d-flex gap-1 ms-2">
-                    <button 
-                      className="btn btn-success d-flex align-items-center justify-content-center rounded-circle p-0" 
-                      style={{ width: '32px', height: '32px' }}
-                      onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'ACCEPTED')}
-                      title="Accept"
-                    >
-                      <i className="bi bi-check-lg"></i>
-                    </button>
-                    <button 
-                      className="btn btn-outline-danger d-flex align-items-center justify-content-center rounded-circle p-0" 
-                      style={{ width: '32px', height: '32px' }}
-                      onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'REJECTED')}
-                      title="Reject"
-                    >
-                      <i className="bi bi-x-lg"></i>
-                    </button>
+                    {friendship.is_initiator ? (
+                      <button 
+                        className="btn btn-outline-danger d-flex align-items-center justify-content-center rounded-circle p-0" 
+                        style={{ width: '32px', height: '32px' }}
+                        onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'REJECTED')}
+                        title={t('friends.status.cancel', 'Cancel')}
+                      >
+                        <i className="bi bi-x-lg"></i>
+                      </button>
+                    ) : (
+                      <>
+                        <button 
+                          className="btn btn-success d-flex align-items-center justify-content-center rounded-circle p-0" 
+                          style={{ width: '32px', height: '32px' }}
+                          onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'ACCEPTED')}
+                          title={t('friends.status.accept', 'Accept')}
+                        >
+                          <i className="bi bi-check-lg"></i>
+                        </button>
+                        <button 
+                          className="btn btn-outline-danger d-flex align-items-center justify-content-center rounded-circle p-0" 
+                          style={{ width: '32px', height: '32px' }}
+                          onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'REJECTED')}
+                          title={t('friends.status.reject', 'Reject')}
+                        >
+                          <i className="bi bi-x-lg"></i>
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </li>
