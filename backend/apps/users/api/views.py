@@ -2,6 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import generics, filters
+from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .serializers import RegisterSerializer, UserSerializer, FriendshipSerializer, UserUpdateSerializer
@@ -60,6 +62,19 @@ class ProfileView(APIView):
     def delete(self, request):
         UserService.delete_user(request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+User = get_user_model()
+
+@extend_schema_view(
+    get=extend_schema(tags=['Users'], summary="List and Search Users")
+)
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all().order_by('username')
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'email']
+
 
 
 

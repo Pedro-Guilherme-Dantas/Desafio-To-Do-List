@@ -1,12 +1,13 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, ProfileView, FriendshipViewSet, FriendshipAcceptView
+from .views import RegisterView, ProfileView, FriendshipViewSet, FriendshipAcceptView, UserListView
 
 router = DefaultRouter()
 router.register(r'friendships', FriendshipViewSet, basename='friendship')
 
 urlpatterns = [
+    path('', UserListView.as_view(), name='user-list'),
     path('register/', RegisterView.as_view(), name='user-register'),
     path('me/', ProfileView.as_view(), name='user-profile'),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
