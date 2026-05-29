@@ -1,23 +1,39 @@
 import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchTasks, updateTask } from './api'
 import TaskColumn from '../../components/TaskColumn'
 import CreateTaskModal from './CreateTaskModal'
 import FriendsSidebar from '../friends/FriendsSidebar'
 import TaskFilterBar from './TaskFilterBar'
+import { useAuth } from '../auth/useAuth'
 
 const DashboardPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [filters, setFilters] = useState({})
   const queryClient = useQueryClient()
+  const { logout } = useAuth()
 
   // In a real implementation with infinite scroll per column, we'd use useInfiniteQuery per column.
   // Here we use a single query for simplicity as defined in previous steps, and apply filters locally,
   // or pass filters to the API if the API supports it.
-  const { data: tasks = [], isLoading, isError } = useQuery({
+  const { 
+    data, 
+    isLoading, 
+    isError, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage 
+  } = useInfiniteQuery({
     queryKey: ['tasks', filters],
-    queryFn: () => fetchTasks(filters)
+    queryFn: ({ pageParam = 1 }) => fetchTasks({ ...filters, page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.next ? allPages.length + 1 : undefined;
+    },
+    initialPageParam: 1
   })
+
+  // Flatten the pages into a single array of tasks
+  const tasks = data ? data.pages.flatMap(page => page.results || page) : [];
 
   const updateMutation = useMutation({
     mutationFn: updateTask,
@@ -75,9 +91,14 @@ const DashboardPage = () => {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Dashboard</h2>
-        <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-          <i className="bi bi-plus-lg me-2"></i>New Task
-        </button>
+        <div>
+          <button className="btn btn-outline-secondary me-2" onClick={logout}>
+            <i className="bi bi-box-arrow-right me-2"></i>Logout
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+            <i className="bi bi-plus-lg me-2"></i>New Task
+          </button>
+        </div>
       </div>
 
       <div className="row">
@@ -93,14 +114,27 @@ const DashboardPage = () => {
           ) : isError ? (
             <div className="alert alert-danger">Error loading tasks.</div>
           ) : (
-            <div className="row flex-nowrap overflow-auto pb-4" style={{ minHeight: '70vh' }}>
-              <TaskColumn title="Today" tasks={categorized.today} onUpdateTask={handleUpdateTask} />
-              <TaskColumn title="Next 3 Days" tasks={categorized.next3Days} onUpdateTask={handleUpdateTask} />
-              <TaskColumn title="Next 5 Days" tasks={categorized.next5Days} onUpdateTask={handleUpdateTask} />
-              <TaskColumn title="Next Weeks" tasks={categorized.nextWeeks} onUpdateTask={handleUpdateTask} />
-              <TaskColumn title="Next Month" tasks={categorized.nextMonth} onUpdateTask={handleUpdateTask} />
-              <TaskColumn title="No Deadline" tasks={categorized.noDeadline} onUpdateTask={handleUpdateTask} />
-            </div>
+            <>
+              <div className="row flex-nowrap overflow-auto pb-4" style={{ minHeight: '70vh' }}>
+                <TaskColumn title="Today" tasks={categorized.today} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title="Next 3 Days" tasks={categorized.next3Days} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title="Next 5 Days" tasks={categorized.next5Days} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title="Next Weeks" tasks={categorized.nextWeeks} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title="Next Month" tasks={categorized.nextMonth} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title="No Deadline" tasks={categorized.noDeadline} onUpdateTask={handleUpdateTask} />
+              </div>
+              {hasNextPage && (
+                <div className="text-center mt-3 mb-4">
+                  <button 
+                    className="btn btn-outline-primary" 
+                    onClick={() => fetchNextPage()} 
+                    disabled={isFetchingNextPage}
+                  >
+                    {isFetchingNextPage ? 'Loading more...' : 'Load More Tasks'}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
         <div className="col-lg-3">
