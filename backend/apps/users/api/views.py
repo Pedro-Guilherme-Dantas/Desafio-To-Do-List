@@ -9,6 +9,7 @@ from drf_spectacular.utils import extend_schema, extend_schema_view
 from .serializers import RegisterSerializer, UserSerializer, FriendshipSerializer, UserUpdateSerializer
 from apps.users.services import UserService, FriendshipService
 from rest_framework import viewsets, serializers
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 
 @extend_schema_view(
@@ -89,6 +90,13 @@ class FriendshipViewSet(viewsets.ViewSet):
     def list(self, request):
         friends = FriendshipService.get_friends(request.user)
         serializer = FriendshipSerializer(friends, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    @extend_schema(responses={200: FriendshipSerializer(many=True)}, summary="List Pending Friendship Requests")
+    @action(detail=False, methods=['get'])
+    def requests(self, request):
+        pending = FriendshipService.get_pending_requests(request.user)
+        serializer = FriendshipSerializer(pending, many=True, context={'request': request})
         return Response(serializer.data)
 
     class FriendshipInviteSerializer(serializers.Serializer):

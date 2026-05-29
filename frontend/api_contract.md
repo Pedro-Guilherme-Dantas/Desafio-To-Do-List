@@ -52,6 +52,20 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
 ## 👤 Usuário (Profile)
 *Requer Autenticação JWT (Bearer)*
 
+### `GET /api/users/`
+- **Descrição**: Retorna a lista de usuários, permitindo busca pelo nome de usuário ou e-mail.
+- **Query Params**: `?search=joao`
+- **Response** `200 OK`:
+  ```json
+  [
+    {
+      "id": 1,
+      "username": "joao_silva",
+      "email": "joao@example.com"
+    }
+  ]
+  ```
+
 ### `GET /api/users/me/`
 - **Descrição**: Retorna os dados do usuário autenticado.
 - **Response** `200 OK`:
@@ -91,6 +105,24 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
       },
       "status": "ACCEPTED",
       "created_at": "2026-05-28T10:00:00Z"
+    }
+  ]
+  ```
+
+### `GET /api/users/friendships/requests/`
+- **Descrição**: Lista todas as solicitações de amizade pendentes (tanto enviadas quanto recebidas).
+- **Response** `200 OK`:
+  ```json
+  [
+    {
+      "id": 16,
+      "friend": {
+        "id": 2,
+        "username": "maria",
+        "email": "maria@example.com"
+      },
+      "status": "PENDING",
+      "created_at": "2026-05-28T10:05:00Z"
     }
   ]
   ```
@@ -206,6 +238,20 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
 ## 👥 Compartilhamento & Comentários (Sharing & Comments)
 *Requer Autenticação JWT (Bearer)*
 
+### `GET /api/tasks/{task_id}/participations/`
+- **Descrição**: Retorna a lista de todos os usuários (amigos) que participam da tarefa e seus respectivos cargos. (Apenas o dono e participantes atuais podem visualizar).
+- **Response** `200 OK`:
+  ```json
+  [
+    {
+      "id": 1,
+      "user": {"id": 2, "username": "maria", "email": "maria@example.com"},
+      "role": "EDITOR",
+      "created_at": "2026-05-28T10:00:00Z"
+    }
+  ]
+  ```
+
 ### `POST /api/tasks/{task_id}/participations/`
 - **Descrição**: Compartilha uma tarefa com um amigo.
 - **Body**:
@@ -229,6 +275,20 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
 ### `DELETE /api/tasks/{task_id}/participations/{user_id}/`
 - **Descrição**: Remove um participante de uma tarefa. Pode ser chamado pelo dono da tarefa, ou pelo próprio participante querendo sair do compartilhamento.
 - **Response**: `204 No Content`
+
+### `GET /api/tasks/{task_id}/comments/`
+- **Descrição**: Retorna todos os comentários de uma tarefa. (Apenas o dono e os participantes atuais podem visualizar).
+- **Response** `200 OK`:
+  ```json
+  [
+    {
+      "id": 1,
+      "user": {"id": 2, "username": "maria", "email": "maria@example.com"},
+      "text": "Estou travado na parte 2!",
+      "created_at": "2026-05-28T10:05:00Z"
+    }
+  ]
+  ```
 
 ### `POST /api/tasks/{task_id}/comments/`
 - **Descrição**: Adiciona um comentário na tarefa compartilhada.
