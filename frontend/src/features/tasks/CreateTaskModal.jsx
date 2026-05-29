@@ -39,7 +39,7 @@ const CreateTaskModal = ({ onClose, show }) => {
       description,
       priority,
       category_id: category ? parseInt(category, 10) : null,
-      due_date: dueDate ? new Date(dueDate).toISOString() : null
+      due_date: dueDate ? new Date(`${dueDate}T12:00:00`).toISOString() : null
     })
   }
 
