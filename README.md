@@ -2,6 +2,8 @@
 
 Aplicação web completa para gerenciamento de tarefas, com suporte a compartilhamento entre amigos, permissões granulares, internacionalização (i18n) e notificações assíncronas.
 
+👉 Acesse o projeto em: http://3.144.152.1/
+
 ## 🏗 Arquitetura do Projeto
 
 O projeto foi construído utilizando um ecossistema moderno e escalável, dividido nas seguintes tecnologias:
@@ -20,6 +22,9 @@ O projeto foi construído utilizando um ecossistema moderno e escalável, dividi
 - **Cache e Mensageria:** Redis.
 - **Processamento Assíncrono:** Celery para processamento de tarefas em background.
 - **Autenticação:** JWT (JSON Web Tokens) stateless via cabeçalho HTTP Authorization.
+
+### Produção
+O deploy da aplicação foi realizado em uma instância Amazon EC2 rodando no Ubuntu, com toda a arquitetura orquestrada via Docker Compose. Foram feitas as devidas configurações do docker separadas entre dev e produção, permitindo mais flexibilidade ao lidar com os dois cenários. O frontend foi otimizado via Multi-stage Build no Docker, utilizando o Node.js apenas para compilar os arquivos estáticos e o Nginx para servi-los na porta 80 com fallback de rotas, reduzindo o consumo de RAM para melhor aproveitamento da instância.
 
 ## 🧠 Principais Decisões de Design
 
