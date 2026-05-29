@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
-import ThemeToggle from '../../components/ThemeToggle'
 import LanguageSelector from '../../components/LanguageSelector'
 
 const RegisterPage = () => {
+  const { t } = useTranslation()
   const { register, isRegistering, registerError } = useAuth()
   
   const [username, setUsername] = useState('')
@@ -39,22 +40,21 @@ const RegisterPage = () => {
     <div className="container min-vh-100 d-flex flex-column justify-content-center align-items-center">
       <div className="w-100 d-flex justify-content-end gap-2 p-3 position-absolute top-0 end-0">
         <LanguageSelector />
-        <ThemeToggle />
       </div>
       
       <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
-        <h2 className="text-center mb-4">Cadastro</h2>
+        <h2 className="text-center mb-4">{t('auth.register.title')}</h2>
         
         {registerError && (
           <div className="alert alert-danger" role="alert">
-            <strong>Erro ao criar a conta:</strong> <br />
+            <strong>{t('auth.register.error')}</strong> <br />
             {getErrorMessage(registerError)}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Username</label>
+            <label className="form-label">{t('auth.register.username')}</label>
             <input 
               type="text" 
               className="form-control" 
@@ -64,7 +64,7 @@ const RegisterPage = () => {
             />
           </div>
           <div className="mb-3">
-            <label className="form-label">Email</label>
+            <label className="form-label">{t('auth.register.email')}</label>
             <input 
               type="email" 
               className="form-control" 
@@ -74,7 +74,7 @@ const RegisterPage = () => {
             />
           </div>
           <div className="mb-3">
-            <label className="form-label">Password</label>
+            <label className="form-label">{t('auth.register.password')}</label>
             <input 
               type="password" 
               className="form-control" 
@@ -88,13 +88,13 @@ const RegisterPage = () => {
             className="btn btn-primary w-100" 
             disabled={isRegistering}
           >
-            {isRegistering ? '...' : 'Criar Conta'}
+            {isRegistering ? t('auth.register.loading') : t('auth.register.button')}
           </button>
         </form>
         
         <div className="mt-3 text-center">
           <small>
-            Já tem uma conta? <Link to="/login">Faça Login</Link>
+            {t('auth.register.haveAccount')} <Link to="/login">{t('auth.register.loginLink')}</Link>
           </small>
         </div>
       </div>

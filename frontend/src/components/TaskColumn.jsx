@@ -1,7 +1,9 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import TaskCard from './TaskCard'
 
 const TaskColumn = ({ title, tasks, onUpdateTask, onExpandTask }) => {
+  const { t } = useTranslation()
   return (
     <div className="col-12 col-md-6 col-xl-4 mb-4">
       <div className="card h-100 bg-light">
@@ -14,7 +16,7 @@ const TaskColumn = ({ title, tasks, onUpdateTask, onExpandTask }) => {
         <div className="card-body overflow-auto" style={{ maxHeight: '70vh' }}>
           {tasks.length === 0 ? (
             <div className="text-center text-muted p-4">
-              <small>No tasks</small>
+              <small>{t('dashboard.noTasks', 'No tasks')}</small>
             </div>
           ) : (
             tasks.map(task => (

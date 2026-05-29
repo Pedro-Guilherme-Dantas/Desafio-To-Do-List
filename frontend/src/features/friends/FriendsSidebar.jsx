@@ -1,9 +1,11 @@
 import React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { fetchFriends, fetchFriendRequests, respondFriendRequest } from './api'
 import { Link } from 'react-router-dom'
 
 const FriendsSidebar = () => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   
   const { data: friends = [], isLoading: loadingFriends } = useQuery({
@@ -34,7 +36,7 @@ const FriendsSidebar = () => {
   return (
     <div className="card h-100 bg-light border-0">
       <div className="card-header bg-white border-bottom-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
-        <h5 className="card-title mb-0">Friends</h5>
+        <h5 className="card-title mb-0">{t('friends.title')}</h5>
         <Link to="/friends/search" className="btn btn-sm btn-outline-primary">
           <i className="bi bi-search"></i>
         </Link>
@@ -43,12 +45,12 @@ const FriendsSidebar = () => {
         {isLoading ? (
           <div className="text-center py-3">
             <div className="spinner-border spinner-border-sm text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
+              <span className="visually-hidden">{t('friends.loading')}</span>
             </div>
           </div>
         ) : allRelationships.length === 0 ? (
           <div className="text-center text-muted p-3">
-            <small>No friends yet.</small>
+            <small>{t('friends.noFriends')}</small>
           </div>
         ) : (
           <div>
@@ -60,7 +62,7 @@ const FriendsSidebar = () => {
                 </div>
                 <div className="flex-grow-1">
                   <div className="fw-bold small">{friendship.friend?.username}</div>
-                  <div className="text-muted" style={{ fontSize: '0.75rem' }}>{friendship.status}</div>
+                  <div className="text-muted" style={{ fontSize: '0.75rem' }}>{t(`friends.status.${friendship.status}`, friendship.status)}</div>
                 </div>
                 {friendship.status === 'PENDING' && (
                   <div className="d-flex gap-1 ms-2">

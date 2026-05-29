@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { fetchTaskMembers, fetchTaskComments, addTaskComment, addTaskMember, removeTaskMember } from '../features/tasks/collaborationApi'
 import { fetchFriends } from '../features/friends/api'
 import ManageCategoriesModal from './ManageCategoriesModal'
 import EditTaskModal from '../features/tasks/EditTaskModal'
 
 const TaskCard = ({ task, onUpdate, onExpand }) => {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
   const [newComment, setNewComment] = useState('')
   const [showCategoryManager, setShowCategoryManager] = useState(false)
@@ -143,22 +145,22 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
                 className="btn btn-sm btn-outline-primary"
                 onClick={(e) => { e.stopPropagation(); setShowEditModal(true); }}
               >
-                <i className="bi bi-pencil me-1"></i> Edit Task
+                <i className="bi bi-pencil me-1"></i> {t('task.editTask')}
               </button>
               <button 
                 className="btn btn-sm btn-outline-secondary"
                 onClick={(e) => { e.stopPropagation(); setShowCategoryManager(true); }}
               >
-                <i className="bi bi-tags me-1"></i> Manage Categories
+                <i className="bi bi-tags me-1"></i> {t('task.manageCategories')}
               </button>
             </div>
             
             <div className="mb-3">
-              <h6 className="small fw-bold">Members</h6>
+              <h6 className="small fw-bold">{t('task.members')}</h6>
               {isMembersError ? (
-                <div className="text-danger small mb-2">Error loading members: {membersError?.message}</div>
+                <div className="text-danger small mb-2">{t('task.errorLoadingMembers')} {membersError?.message}</div>
               ) : members.length === 0 ? (
-                <div className="text-muted small mb-2">No members</div>
+                <div className="text-muted small mb-2">{t('task.noMembers')}</div>
               ) : (
                 <div className="d-flex flex-wrap gap-2 mb-2">
                   {members.map(member => (
@@ -180,7 +182,7 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
                     value={selectedFriendId}
                     onChange={e => setSelectedFriendId(e.target.value)}
                   >
-                    <option value="">Select a friend to add...</option>
+                    <option value="">{t('task.selectFriend')}</option>
                     {friends.map(friendship => (
                       <option key={friendship.friend?.id} value={friendship.friend?.id}>
                         {friendship.friend?.username}
@@ -192,19 +194,19 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
                     type="submit" 
                     disabled={addMemberMutation.isPending || !selectedFriendId}
                   >
-                    Add
+                    {t('task.add')}
                   </button>
                 </div>
               </form>
             </div>
 
             <div>
-              <h6 className="small fw-bold">Comments</h6>
+              <h6 className="small fw-bold">{t('task.comments')}</h6>
               <div className="mb-2" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                 {isCommentsError ? (
-                  <div className="text-danger small mb-2">Error loading comments.</div>
+                  <div className="text-danger small mb-2">{t('task.errorLoadingComments')}</div>
                 ) : comments.length === 0 ? (
-                  <span className="text-muted small">No comments</span>
+                  <span className="text-muted small">{t('task.noComments')}</span>
                 ) : (
                   comments.map(c => (
                     <div key={c.id || Math.random()} className="mb-2 small border-bottom pb-1">
@@ -219,12 +221,12 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
                   <input 
                     type="text" 
                     className="form-control" 
-                    placeholder="Add comment..."
+                    placeholder={t('task.addComment')}
                     value={newComment}
                     onChange={e => setNewComment(e.target.value)}
                   />
                   <button className="btn btn-outline-secondary" type="submit" disabled={addCommentMutation.isPending || !newComment.trim()}>
-                    Send
+                    {t('task.send')}
                   </button>
                 </div>
               </form>
