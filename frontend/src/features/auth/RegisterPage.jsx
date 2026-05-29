@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
-import ThemeToggle from '../../components/ThemeToggle'
 import LanguageSelector from '../../components/LanguageSelector'
 
 const RegisterPage = () => {
@@ -41,7 +40,6 @@ const RegisterPage = () => {
     <div className="container min-vh-100 d-flex flex-column justify-content-center align-items-center">
       <div className="w-100 d-flex justify-content-end gap-2 p-3 position-absolute top-0 end-0">
         <LanguageSelector />
-        <ThemeToggle />
       </div>
       
       <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>

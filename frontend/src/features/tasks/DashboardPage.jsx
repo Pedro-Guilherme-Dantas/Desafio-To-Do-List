@@ -7,7 +7,6 @@ import CreateTaskModal from './CreateTaskModal'
 import FriendsSidebar from '../friends/FriendsSidebar'
 import TaskFilterBar from './TaskFilterBar'
 import LanguageSelector from '../../components/LanguageSelector'
-import ThemeToggle from '../../components/ThemeToggle'
 import { useAuth } from '../auth/useAuth'
 
 const DashboardPage = () => {
@@ -97,7 +96,6 @@ const DashboardPage = () => {
         <h2>{t('dashboard.title')}</h2>
         <div className="d-flex align-items-center gap-2">
           <LanguageSelector />
-          <ThemeToggle />
           <button className="btn btn-outline-secondary" onClick={logout}>
             <i className="bi bi-box-arrow-right me-2"></i>{t('dashboard.logout')}
           </button>
