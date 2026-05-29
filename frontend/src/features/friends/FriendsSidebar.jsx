@@ -37,8 +37,9 @@ const FriendsSidebar = () => {
     <div className="card h-100 bg-light border-0">
       <div className="card-header bg-white border-bottom-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
         <h5 className="card-title mb-0">{t('friends.title')}</h5>
-        <Link to="/friends/search" className="btn btn-sm btn-outline-primary">
+        <Link to="/friends/search" className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2">
           <i className="bi bi-search"></i>
+          <span>{t('friends.searchTitle')}</span>
         </Link>
       </div>
       <div className="card-body overflow-auto">
