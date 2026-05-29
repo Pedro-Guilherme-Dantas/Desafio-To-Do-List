@@ -238,6 +238,20 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
 ## 👥 Compartilhamento & Comentários (Sharing & Comments)
 *Requer Autenticação JWT (Bearer)*
 
+### `GET /api/tasks/{task_id}/participations/`
+- **Descrição**: Retorna a lista de todos os usuários (amigos) que participam da tarefa e seus respectivos cargos. (Apenas o dono e participantes atuais podem visualizar).
+- **Response** `200 OK`:
+  ```json
+  [
+    {
+      "id": 1,
+      "user": {"id": 2, "username": "maria", "email": "maria@example.com"},
+      "role": "EDITOR",
+      "created_at": "2026-05-28T10:00:00Z"
+    }
+  ]
+  ```
+
 ### `POST /api/tasks/{task_id}/participations/`
 - **Descrição**: Compartilha uma tarefa com um amigo.
 - **Body**:
