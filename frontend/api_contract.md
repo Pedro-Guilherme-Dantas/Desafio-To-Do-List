@@ -77,6 +77,11 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
   }
   ```
 
+### `PUT /api/users/me/`
+- **Descrição**: Atualiza completamente os dados do usuário.
+- **Body**: `{"username": "joao2", "email": "novo@email.com", "password": "..."}`
+- **Response** `200 OK`: `{"id": 1, "username": "joao2", "email": "novo@email.com"}`
+
 ### `PATCH /api/users/me/`
 - **Descrição**: Atualiza parcialmente os dados do usuário.
 - **Body** *(opcional)*: `{"username": "joao2", "email": "novo@email.com", "password": "..."}`
@@ -171,6 +176,11 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
 - **Body**: `{"name": "Trabalho", "color": "#FF0000"}`
 - **Response** `201 Created`: `{"id": 1, "name": "Trabalho", "color": "#FF0000"}`
 
+### `PUT /api/categories/{id}/`
+- **Descrição**: Atualiza uma categoria completamente.
+- **Body**: `{"name": "Estudos", "color": "#00FF00"}`
+- **Response** `200 OK`: `{"id": 1, "name": "Estudos", "color": "#00FF00"}`
+
 ### `PATCH /api/categories/{id}/`
 - **Descrição**: Atualiza uma categoria existente.
 - **Body**: `{"name": "Estudos"}`
@@ -223,6 +233,21 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
   }
   ```
 - **Response** `201 Created`: *(Mesmo formato de item em `results` do GET)*
+
+### `PUT /api/tasks/{id}/`
+- **Descrição**: Atualiza completamente a tarefa (apenas Dono ou `EDITOR`).
+- **Body**:
+  ```json
+  {
+    "title": "Estudar Python Atualizado",
+    "description": "Fazer todos os módulos",
+    "priority": "MEDIUM",
+    "is_completed": true,
+    "due_date": "2026-06-10T23:59:00Z",
+    "category_id": 1
+  }
+  ```
+- **Response** `200 OK`: *(Item atualizado)*
 
 ### `PATCH /api/tasks/{id}/`
 - **Descrição**: Atualiza parcialmente a tarefa (apenas Dono ou `EDITOR`).
