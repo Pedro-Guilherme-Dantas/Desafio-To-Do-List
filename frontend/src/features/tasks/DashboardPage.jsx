@@ -5,11 +5,13 @@ import TaskColumn from '../../components/TaskColumn'
 import CreateTaskModal from './CreateTaskModal'
 import FriendsSidebar from '../friends/FriendsSidebar'
 import TaskFilterBar from './TaskFilterBar'
+import { useAuth } from '../auth/useAuth'
 
 const DashboardPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [filters, setFilters] = useState({})
   const queryClient = useQueryClient()
+  const { logout } = useAuth()
 
   // In a real implementation with infinite scroll per column, we'd use useInfiniteQuery per column.
   // Here we use a single query for simplicity as defined in previous steps, and apply filters locally,
@@ -89,9 +91,14 @@ const DashboardPage = () => {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Dashboard</h2>
-        <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-          <i className="bi bi-plus-lg me-2"></i>New Task
-        </button>
+        <div>
+          <button className="btn btn-outline-secondary me-2" onClick={logout}>
+            <i className="bi bi-box-arrow-right me-2"></i>Logout
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+            <i className="bi bi-plus-lg me-2"></i>New Task
+          </button>
+        </div>
       </div>
 
       <div className="row">
