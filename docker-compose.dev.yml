@@ -58,7 +58,9 @@ services:
       - REDIS_URL=redis://redis:6379/0
 
   frontend:
-    image: node:22-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     working_dir: /app
     volumes:
       - ./frontend:/app
