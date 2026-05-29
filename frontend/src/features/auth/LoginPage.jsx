@@ -20,11 +20,33 @@ const LoginPage = () => {
     if (error.response?.data) {
       const data = error.response.data
       if (typeof data === 'string') return data
-      if (typeof data === 'object') {
-        // Formatar erros de API de login (ex: credenciais inválidas)
-        return Object.entries(data)
-          .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(', ') : val}`)
-          .join(' | ')
+      
+      let errorObj = data
+      if (data.details && typeof data.details === 'object' && Object.keys(data.details).length > 0) {
+        errorObj = data.details
+      }
+
+      if (typeof errorObj === 'object') {
+        const errors = []
+        for (const [key, val] of Object.entries(errorObj)) {
+          if (errorObj === data && (key === 'error' || key === 'message' || key === 'details')) continue
+          
+          if (Array.isArray(val)) {
+            errors.push(`${key}: ${val.join(', ')}`)
+          } else if (typeof val === 'object' && val !== null) {
+            errors.push(`${key}: Formato inválido`)
+          } else {
+            errors.push(`${key}: ${val}`)
+          }
+        }
+        if (errors.length > 0) return errors.join(' | ')
+      }
+
+      if (data.message && typeof data.message === 'string') {
+        return data.message
+          .replace(/ErrorDetail\(string='([^']+)'[^)]*\)/g, '$1')
+          .replace(/[{}[\]']/g, '')
+          .trim()
       }
     }
     return error.message || 'Erro desconhecido'
