@@ -2,7 +2,7 @@ import api from '../../services/api'
 
 export const fetchTasks = async (params) => {
   const response = await api.get('/tasks/', { params })
-  return response.data.results || response.data
+  return response.data
 }
 
 export const createTask = async (taskData) => {
