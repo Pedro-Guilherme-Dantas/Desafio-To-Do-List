@@ -215,3 +215,16 @@ class SharingService:
         NotificationService.notify('COMMENT_ADDED', {'task_id': task.id, 'user_id': user.id, 'comment_id': comment.id})
         
         return comment
+
+    @staticmethod
+    def get_task_comments(user, task_id: int):
+        from .models import Comment, TaskParticipation
+        task = Task.objects.filter(id=task_id).first()
+        if not task:
+            raise ValidationError("Task not found.")
+            
+        if task.owner != user:
+            if not TaskParticipation.objects.filter(task=task, user=user).exists():
+                raise ValidationError("You do not have permission to view comments for this task.")
+                
+        return Comment.objects.filter(task=task).select_related('user').order_by('created_at')

@@ -160,10 +160,17 @@ class TaskParticipationViewSet(viewsets.ViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @extend_schema_view(
+    list=extend_schema(tags=['Comments'], summary="List all comments of a task"),
     create=extend_schema(tags=['Comments'], summary="Add a comment to a task")
 )
 class CommentViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={200: CommentSerializer(many=True)})
+    def list(self, request, task_pk=None):
+        comments = SharingService.get_task_comments(request.user, task_pk)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
 
     @extend_schema(request=CommentInputSerializer, responses={201: CommentSerializer})
     def create(self, request, task_pk=None):

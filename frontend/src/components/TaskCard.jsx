@@ -201,13 +201,15 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
             <div>
               <h6 className="small fw-bold">Comments</h6>
               <div className="mb-2" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                {comments.length === 0 ? (
+                {isCommentsError ? (
+                  <div className="text-danger small mb-2">Error loading comments.</div>
+                ) : comments.length === 0 ? (
                   <span className="text-muted small">No comments</span>
                 ) : (
                   comments.map(c => (
-                    <div key={c.id} className="mb-2 small border-bottom pb-1">
-                      <span className="fw-bold me-1">{c.user.username}:</span>
-                      <span>{c.text}</span>
+                    <div key={c.id || Math.random()} className="mb-2 small border-bottom pb-1">
+                      <span className="fw-bold me-1">{c.user?.username || 'Unknown User'}:</span>
+                      <span>{c.text || ''}</span>
                     </div>
                   ))
                 )}

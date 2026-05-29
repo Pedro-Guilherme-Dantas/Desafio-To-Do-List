@@ -276,6 +276,20 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
 - **Descrição**: Remove um participante de uma tarefa. Pode ser chamado pelo dono da tarefa, ou pelo próprio participante querendo sair do compartilhamento.
 - **Response**: `204 No Content`
 
+### `GET /api/tasks/{task_id}/comments/`
+- **Descrição**: Retorna todos os comentários de uma tarefa. (Apenas o dono e os participantes atuais podem visualizar).
+- **Response** `200 OK`:
+  ```json
+  [
+    {
+      "id": 1,
+      "user": {"id": 2, "username": "maria", "email": "maria@example.com"},
+      "text": "Estou travado na parte 2!",
+      "created_at": "2026-05-28T10:05:00Z"
+    }
+  ]
+  ```
+
 ### `POST /api/tasks/{task_id}/comments/`
 - **Descrição**: Adiciona um comentário na tarefa compartilhada.
 - **Body**: `{"text": "Estou travado na parte 2!"}`
