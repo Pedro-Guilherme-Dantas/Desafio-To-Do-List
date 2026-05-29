@@ -63,8 +63,8 @@ docker compose exec web python manage.py migrate
 ```
 
 ### 3. Acessando a Aplicação
-- **Frontend:** Abra seu navegador em `http://localhost:80` (ou apenas `http://localhost`).
-- **Documentação da API (Swagger):** Acesse `http://localhost:8000/api/docs/` ou `http://localhost:8000/api/schema/swagger-ui/`.
+- **Frontend:** Abra seu navegador em `http://localhost:5173`.
+- **Documentação da API (Swagger):** Acesse `http://localhost:8000/api/docs/`.
 
 ### 4. Visualizando Logs (Celery e Notificações)
 Para ver os disparos de webhooks e logs do Celery worker:
