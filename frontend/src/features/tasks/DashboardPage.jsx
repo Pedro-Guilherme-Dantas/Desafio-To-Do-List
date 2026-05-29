@@ -121,11 +121,11 @@ const DashboardPage = () => {
             <>
               <div className="row flex-nowrap overflow-auto pb-4" style={{ minHeight: '70vh' }}>
                 <TaskColumn title={t('dashboard.columns.today')} tasks={categorized.today} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title={t('dashboard.columns.noDeadline')} tasks={categorized.noDeadline} onUpdateTask={handleUpdateTask} />
                 <TaskColumn title={t('dashboard.columns.next3Days')} tasks={categorized.next3Days} onUpdateTask={handleUpdateTask} />
                 <TaskColumn title={t('dashboard.columns.next5Days')} tasks={categorized.next5Days} onUpdateTask={handleUpdateTask} />
                 <TaskColumn title={t('dashboard.columns.nextWeeks')} tasks={categorized.nextWeeks} onUpdateTask={handleUpdateTask} />
                 <TaskColumn title={t('dashboard.columns.nextMonth')} tasks={categorized.nextMonth} onUpdateTask={handleUpdateTask} />
-                <TaskColumn title={t('dashboard.columns.noDeadline')} tasks={categorized.noDeadline} onUpdateTask={handleUpdateTask} />
               </div>
               {hasNextPage && (
                 <div className="text-center mt-3 mb-4">
