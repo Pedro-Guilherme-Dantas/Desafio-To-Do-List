@@ -95,7 +95,10 @@ const resources = {
         status: {
           PENDING: "Pending",
           ACCEPTED: "Accepted",
-          REJECTED: "Rejected"
+          REJECTED: "Rejected",
+          cancel: "Cancel",
+          accept: "Accept",
+          reject: "Reject"
         }
       },
       categories: {
@@ -202,7 +205,10 @@ const resources = {
         status: {
           PENDING: "Pendente",
           ACCEPTED: "Aceito",
-          REJECTED: "Rejeitado"
+          REJECTED: "Rejeitado",
+          cancel: "Cancelar",
+          accept: "Aceitar",
+          reject: "Recusar"
         }
       },
       categories: {

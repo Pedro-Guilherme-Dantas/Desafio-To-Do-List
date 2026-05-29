@@ -155,13 +155,13 @@ const UserSearchPage = () => {
                                 className="btn btn-sm btn-success" 
                                 onClick={() => handleRespond(relationship.id, 'ACCEPTED')}
                               >
-                                {t('friends.status.ACCEPTED', 'Accept')}
+                                {t('friends.status.accept', 'Accept')}
                               </button>
                               <button 
                                 className="btn btn-sm btn-danger" 
                                 onClick={() => handleRespond(relationship.id, 'REJECTED')}
                               >
-                                {t('friends.status.REJECTED', 'Reject')}
+                                {t('friends.status.reject', 'Reject')}
                               </button>
                             </>
                           )}
