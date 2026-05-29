@@ -12,6 +12,7 @@ const resources = {
           noAccount: "Don't have an account?",
           registerLink: "Sign up",
           authFailed: "Authentication failed:",
+          invalidCredentials: "Username or password incorrect.",
           button: "Login",
           loading: "..."
         },
@@ -118,6 +119,7 @@ const resources = {
           noAccount: "Não tem uma conta?",
           registerLink: "Cadastre-se",
           authFailed: "Falha na autenticação:",
+          invalidCredentials: "Nome de usuário ou senha incorretos.",
           button: "Entrar",
           loading: "..."
         },

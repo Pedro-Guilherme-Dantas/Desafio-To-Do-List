@@ -17,6 +17,12 @@ const LoginPage = () => {
 
   const getErrorMessage = (error) => {
     if (!error) return null
+
+    // Handle standard unauthorized / incorrect credentials gracefully
+    if (error.response?.status === 401) {
+      return t('auth.login.invalidCredentials')
+    }
+
     if (error.response?.data) {
       const data = error.response.data
       if (typeof data === 'string') return data
