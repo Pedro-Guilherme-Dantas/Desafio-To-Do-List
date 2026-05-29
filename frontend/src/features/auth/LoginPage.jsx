@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
 import LanguageSelector from '../../components/LanguageSelector'
@@ -7,6 +7,10 @@ import LanguageSelector from '../../components/LanguageSelector'
 const LoginPage = () => {
   const { t } = useTranslation()
   const { login, isLoggingIn, loginError } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+  
+  const isSuccess = location.state?.registrationSuccess
   
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -45,6 +49,13 @@ const LoginPage = () => {
       <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
         <h2 className="text-center mb-4">{t('auth.login.title')}</h2>
         
+        {isSuccess && (
+          <div className="alert alert-success alert-dismissible fade show" role="alert">
+            {t('auth.register.success')}
+            <button type="button" className="btn-close" onClick={() => navigate('.', { replace: true })} aria-label="Close"></button>
+          </div>
+        )}
+
         {loginError && (
           <div className="alert alert-danger" role="alert">
             <strong>{t('auth.login.authFailed')}</strong> <br />

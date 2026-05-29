@@ -11,6 +11,8 @@ const RegisterPage = () => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [validationError, setValidationError] = useState('')
 
   const getErrorMessage = (error) => {
     if (!error) return null
@@ -29,6 +31,12 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (password !== confirmPassword) {
+      setValidationError(t('auth.register.passwordMismatch'))
+      return
+    }
+    setValidationError('')
+    
     try {
       await register({ username, email, password })
     } catch (err) {
@@ -45,6 +53,12 @@ const RegisterPage = () => {
       <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
         <h2 className="text-center mb-4">{t('auth.register.title')}</h2>
         
+        {validationError && (
+          <div className="alert alert-warning" role="alert">
+            {validationError}
+          </div>
+        )}
+
         {registerError && (
           <div className="alert alert-danger" role="alert">
             <strong>{t('auth.register.error')}</strong> <br />
@@ -80,6 +94,16 @@ const RegisterPage = () => {
               className="form-control" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="form-label">{t('auth.register.confirmPassword')}</label>
+            <input 
+              type="password" 
+              className="form-control" 
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
