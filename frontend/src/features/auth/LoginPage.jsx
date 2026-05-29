@@ -45,18 +45,18 @@ const LoginPage = () => {
       </div>
       
       <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
-        <h2 className="text-center mb-4">{t('auth.login.title', 'Login')}</h2>
+        <h2 className="text-center mb-4">{t('auth.login.title')}</h2>
         
         {loginError && (
           <div className="alert alert-danger" role="alert">
-            <strong>Falha na autenticação:</strong> <br />
+            <strong>{t('auth.login.authFailed')}</strong> <br />
             {getErrorMessage(loginError)}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Username</label>
+            <label className="form-label">{t('auth.login.username')}</label>
             <input 
               type="text"
               name="username"
@@ -67,7 +67,7 @@ const LoginPage = () => {
             />
           </div>
           <div className="mb-3">
-            <label className="form-label">Password</label>
+            <label className="form-label">{t('auth.login.password')}</label>
             <input 
               type="password"
               name="password"
@@ -82,13 +82,13 @@ const LoginPage = () => {
             className="btn btn-primary w-100" 
             disabled={isLoggingIn}
           >
-            {isLoggingIn ? '...' : t('auth.login.title', 'Login')}
+            {isLoggingIn ? t('auth.login.loading') : t('auth.login.button')}
           </button>
         </form>
         
         <div className="mt-3 text-center">
           <small>
-            Não tem uma conta? <Link to="/register">Cadastre-se</Link>
+            {t('auth.login.noAccount')} <Link to="/register">{t('auth.login.registerLink')}</Link>
           </small>
         </div>
       </div>

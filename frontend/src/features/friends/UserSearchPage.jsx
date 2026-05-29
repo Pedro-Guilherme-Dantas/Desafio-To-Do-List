@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { searchUsers, sendFriendRequest, fetchFriends, fetchFriendRequests, respondFriendRequest } from './api'
 import { Link } from 'react-router-dom'
 
 const UserSearchPage = () => {
+  const { t } = useTranslation()
   const [searchInput, setSearchInput] = useState('')
   const [activeQuery, setActiveQuery] = useState('')
   const queryClient = useQueryClient()
@@ -68,31 +70,31 @@ const UserSearchPage = () => {
     <div className="container py-4">
       <div className="mb-4">
         <Link to="/" className="text-decoration-none">
-          <i className="bi bi-arrow-left me-2"></i>Back to Dashboard
+          <i className="bi bi-arrow-left me-2"></i>{t('dashboard.title')}
         </Link>
       </div>
       
       <div className="card shadow-sm mx-auto" style={{ maxWidth: '600px' }}>
         <div className="card-body">
-          <h4 className="card-title mb-4">Find Friends</h4>
+          <h4 className="card-title mb-4">{t('friends.searchTitle')}</h4>
           
           <form onSubmit={handleSearch} className="mb-4">
             <div className="input-group">
               <input 
                 type="text" 
                 className="form-control" 
-                placeholder="Search users by name..."
+                placeholder={t('friends.searchPlaceholder')}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
               />
-              <button className="btn btn-primary" type="submit">Search</button>
+              <button className="btn btn-primary" type="submit">{t('friends.searchButton')}</button>
             </div>
           </form>
 
           {isLoading ? (
             <div className="text-center py-4">
               <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
+                <span className="visually-hidden">{t('friends.loading')}</span>
               </div>
             </div>
           ) : isError ? (
@@ -128,18 +130,18 @@ const UserSearchPage = () => {
                             className="btn btn-sm btn-success" 
                             onClick={() => handleRespond(relationship.id, 'ACCEPTED')}
                           >
-                            Accept
+                            {t('friends.status.ACCEPTED', 'Accept')}
                           </button>
                           <button 
                             className="btn btn-sm btn-danger" 
                             onClick={() => handleRespond(relationship.id, 'REJECTED')}
                           >
-                            Reject
+                            {t('friends.status.REJECTED', 'Reject')}
                           </button>
                         </div>
                       ) : isSent ? (
                         <button className="btn btn-sm btn-secondary" disabled>
-                          Pending
+                          {t('friends.status.PENDING', 'Pending')}
                         </button>
                       ) : (
                         <button 
@@ -147,7 +149,7 @@ const UserSearchPage = () => {
                           onClick={() => addFriendMutation.mutate(user.id)}
                           disabled={addFriendMutation.isPending}
                         >
-                          Add Friend
+                          {t('friends.addFriend')}
                         </button>
                       )}
                     </div>
@@ -157,11 +159,11 @@ const UserSearchPage = () => {
             </ul>
           ) : activeQuery ? (
             <div className="text-center text-muted py-4">
-              No users found matching "{activeQuery}"
+              {t('friends.noUsersFound')} "{activeQuery}"
             </div>
           ) : (
             <div className="text-center text-muted py-4">
-              No users available.
+              {t('friends.noUsersFound')}
             </div>
           )}
         </div>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { fetchCategories, createCategory } from '../features/tasks/api'
 
 const ManageCategoriesModal = ({ show, onClose }) => {
+  const { t } = useTranslation()
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newCategoryColor, setNewCategoryColor] = useState('#0d6efd')
 
@@ -39,16 +41,16 @@ const ManageCategoriesModal = ({ show, onClose }) => {
       <div className="modal-dialog modal-dialog-centered modal-sm">
         <div className="modal-content" onClick={e => e.stopPropagation()}>
           <div className="modal-header">
-            <h6 className="modal-title">Manage Categories</h6>
+            <h6 className="modal-title">{t('categories.title')}</h6>
             <button type="button" className="btn-close" onClick={onClose} aria-label="Close"></button>
           </div>
           <div className="modal-body">
             <div className="mb-4">
-              <label className="form-label small fw-bold">Existing Categories</label>
+              <label className="form-label small fw-bold">{t('categories.title')}</label>
               {isLoading ? (
-                <div className="text-center py-2"><small>Loading...</small></div>
+                <div className="text-center py-2"><small>{t('dashboard.loading')}</small></div>
               ) : categories.length === 0 ? (
-                <div className="text-muted small">No categories yet.</div>
+                <div className="text-muted small">...</div>
               ) : (
                 <div className="d-flex flex-wrap gap-2 max-h-150 overflow-auto">
                   {categories.map(c => (
@@ -63,12 +65,12 @@ const ManageCategoriesModal = ({ show, onClose }) => {
             <hr />
 
             <form onSubmit={handleCreate}>
-              <label className="form-label small fw-bold">Create New</label>
+              <label className="form-label small fw-bold">{t('categories.add')}</label>
               <div className="mb-2">
                 <input 
                   type="text" 
                   className="form-control form-control-sm" 
-                  placeholder="Category Name" 
+                  placeholder={t('categories.name')} 
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   required
@@ -83,14 +85,14 @@ const ManageCategoriesModal = ({ show, onClose }) => {
                   title="Choose your color"
                   style={{ width: '40px', height: '30px' }}
                 />
-                <small className="text-muted">Color</small>
+                <small className="text-muted">{t('categories.color')}</small>
               </div>
               <button 
                 type="submit" 
                 className="btn btn-primary btn-sm w-100" 
                 disabled={mutation.isPending || !newCategoryName.trim()}
               >
-                {mutation.isPending ? 'Saving...' : 'Add Category'}
+                {mutation.isPending ? '...' : t('categories.add')}
               </button>
             </form>
           </div>
