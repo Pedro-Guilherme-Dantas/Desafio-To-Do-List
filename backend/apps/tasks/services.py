@@ -170,6 +170,19 @@ class SharingService:
         return participation
 
     @staticmethod
+    def get_task_participations(user, task_id: int):
+        from .models import TaskParticipation
+        task = Task.objects.filter(id=task_id).first()
+        if not task:
+            raise ValidationError("Task not found.")
+            
+        if task.owner != user:
+            if not TaskParticipation.objects.filter(task=task, user=user).exists():
+                raise ValidationError("You do not have permission to view this task's participants.")
+                
+        return TaskParticipation.objects.filter(task=task).select_related('user')
+
+    @staticmethod
     def unshare_task(user, task_id: int, target_user_id: int):
         from .models import TaskParticipation
         participation = TaskParticipation.objects.filter(task_id=task_id, user_id=target_user_id).select_related('task').first()

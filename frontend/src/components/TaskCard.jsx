@@ -14,16 +14,18 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
   const queryClient = useQueryClient()
 
   // Only fetch comments and members if expanded
-  const { data: comments = [] } = useQuery({
+  const { data: comments = [], isError: isCommentsError } = useQuery({
     queryKey: ['taskComments', task.id],
     queryFn: () => fetchTaskComments(task.id),
-    enabled: expanded
+    enabled: expanded,
+    retry: 1
   })
 
-  const { data: members = [] } = useQuery({
+  const { data: members = [], isError: isMembersError, error: membersError } = useQuery({
     queryKey: ['taskMembers', task.id],
     queryFn: () => fetchTaskMembers(task.id),
-    enabled: expanded
+    enabled: expanded,
+    retry: 1
   })
 
   const { data: friends = [] } = useQuery({
@@ -37,7 +39,8 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['taskComments', task.id] })
       setNewComment('')
-    }
+    },
+    onError: (err) => alert(`Error adding comment: ${err?.response?.data?.detail || err.message}`)
   })
 
   const addMemberMutation = useMutation({
@@ -45,14 +48,16 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['taskMembers', task.id] })
       setSelectedFriendId('')
-    }
+    },
+    onError: (err) => alert(`Error adding member: ${err?.response?.data?.detail || err.message}`)
   })
 
   const removeMemberMutation = useMutation({
     mutationFn: removeTaskMember,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['taskMembers', task.id] })
-    }
+    },
+    onError: (err) => alert(`Error removing member: ${err?.response?.data?.detail || err.message}`)
   })
 
   const handleToggleComplete = (e) => {
@@ -77,7 +82,7 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
   const handleAddMember = (e) => {
     e.preventDefault()
     if (selectedFriendId) {
-      addMemberMutation.mutate({ taskId: task.id, userId: selectedFriendId, role: 'EDITOR' })
+      addMemberMutation.mutate({ taskId: task.id, userId: parseInt(selectedFriendId, 10), role: 'EDITOR' })
     }
   }
 
@@ -150,7 +155,9 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
             
             <div className="mb-3">
               <h6 className="small fw-bold">Members</h6>
-              {members.length === 0 ? (
+              {isMembersError ? (
+                <div className="text-danger small mb-2">Error loading members: {membersError?.message}</div>
+              ) : members.length === 0 ? (
                 <div className="text-muted small mb-2">No members</div>
               ) : (
                 <div className="d-flex flex-wrap gap-2 mb-2">

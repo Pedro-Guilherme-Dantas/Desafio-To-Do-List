@@ -130,11 +130,18 @@ class TaskViewSet(viewsets.ViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @extend_schema_view(
+    list=extend_schema(tags=['Sharing'], summary="List participants of a task"),
     create=extend_schema(tags=['Sharing'], summary="Share task with a user"),
     destroy=extend_schema(tags=['Sharing'], summary="Remove user from task")
 )
 class TaskParticipationViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={200: TaskParticipationSerializer(many=True)})
+    def list(self, request, task_pk=None):
+        participations = SharingService.get_task_participations(request.user, task_pk)
+        serializer = TaskParticipationSerializer(participations, many=True)
+        return Response(serializer.data)
 
     @extend_schema(request=TaskParticipationInputSerializer, responses={201: TaskParticipationSerializer})
     def create(self, request, task_pk=None):
