@@ -18,7 +18,7 @@ export const useAuth = () => {
     mutationFn: registerUser,
     onSuccess: () => {
       // After registration, redirect to login or auto-login
-      navigate('/login', { state: { message: 'Conta criada com sucesso! Faça login.' } })
+      navigate('/login', { state: { registrationSuccess: true } })
     },
   })
 

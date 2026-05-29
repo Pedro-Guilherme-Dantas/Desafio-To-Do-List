@@ -11,17 +11,44 @@ const RegisterPage = () => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [validationError, setValidationError] = useState('')
 
   const getErrorMessage = (error) => {
     if (!error) return null
     if (error.response?.data) {
       const data = error.response.data
       if (typeof data === 'string') return data
-      if (typeof data === 'object') {
-        // Formatar erros típicos de APIs (ex: { username: ["Já existe"], email: ["Inválido"] })
-        return Object.entries(data)
-          .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(', ') : val}`)
-          .join(' | ')
+      
+      // Check if there is a 'details' object containing the actual field errors
+      let errorObj = data
+      if (data.details && typeof data.details === 'object' && Object.keys(data.details).length > 0) {
+        errorObj = data.details
+      }
+
+      if (typeof errorObj === 'object') {
+        const errors = []
+        for (const [key, val] of Object.entries(errorObj)) {
+          // Ignore wrapper keys if iterating over the root object
+          if (errorObj === data && (key === 'error' || key === 'message' || key === 'details')) continue
+          
+          if (Array.isArray(val)) {
+            errors.push(`${key}: ${val.join(', ')}`)
+          } else if (typeof val === 'object' && val !== null) {
+            errors.push(`${key}: Formato inválido`)
+          } else {
+            errors.push(`${key}: ${val}`)
+          }
+        }
+        if (errors.length > 0) return errors.join(' | ')
+      }
+
+      // Fallback for weird backend python strings
+      if (data.message && typeof data.message === 'string') {
+        return data.message
+          .replace(/ErrorDetail\(string='([^']+)'[^)]*\)/g, '$1')
+          .replace(/[{}[\]']/g, '')
+          .trim()
       }
     }
     return error.message || 'Erro desconhecido'
@@ -29,6 +56,12 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (password !== confirmPassword) {
+      setValidationError(t('auth.register.passwordMismatch'))
+      return
+    }
+    setValidationError('')
+    
     try {
       await register({ username, email, password })
     } catch (err) {
@@ -45,6 +78,12 @@ const RegisterPage = () => {
       <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
         <h2 className="text-center mb-4">{t('auth.register.title')}</h2>
         
+        {validationError && (
+          <div className="alert alert-warning" role="alert">
+            {validationError}
+          </div>
+        )}
+
         {registerError && (
           <div className="alert alert-danger" role="alert">
             <strong>{t('auth.register.error')}</strong> <br />
@@ -80,6 +119,16 @@ const RegisterPage = () => {
               className="form-control" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="form-label">{t('auth.register.confirmPassword')}</label>
+            <input 
+              type="password" 
+              className="form-control" 
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>

@@ -23,10 +23,11 @@ class UserUpdateSerializer(serializers.Serializer):
 
 class FriendshipSerializer(serializers.ModelSerializer):
     friend = serializers.SerializerMethodField()
+    is_initiator = serializers.SerializerMethodField()
     
     class Meta:
         model = Friendship
-        fields = ('id', 'friend', 'status', 'created_at')
+        fields = ('id', 'friend', 'status', 'created_at', 'is_initiator')
         
     from drf_spectacular.utils import extend_schema_field
     @extend_schema_field(UserSerializer)
@@ -35,3 +36,7 @@ class FriendshipSerializer(serializers.ModelSerializer):
         request_user = self.context['request'].user
         friend_user = obj.user2 if obj.user1 == request_user else obj.user1
         return UserSerializer(friend_user).data
+
+    def get_is_initiator(self, obj):
+        request_user = self.context['request'].user
+        return obj.user1 == request_user

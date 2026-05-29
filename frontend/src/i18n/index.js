@@ -12,6 +12,7 @@ const resources = {
           noAccount: "Don't have an account?",
           registerLink: "Sign up",
           authFailed: "Authentication failed:",
+          invalidCredentials: "Username or password incorrect.",
           button: "Login",
           loading: "..."
         },
@@ -20,6 +21,9 @@ const resources = {
           username: "Username",
           email: "Email",
           password: "Password",
+          confirmPassword: "Confirm Password",
+          passwordMismatch: "Passwords do not match.",
+          success: "Account created successfully! Please log in.",
           button: "Create Account",
           loading: "...",
           haveAccount: "Already have an account?",
@@ -91,7 +95,10 @@ const resources = {
         status: {
           PENDING: "Pending",
           ACCEPTED: "Accepted",
-          REJECTED: "Rejected"
+          REJECTED: "Rejected",
+          cancel: "Cancel",
+          accept: "Accept",
+          reject: "Reject"
         }
       },
       categories: {
@@ -115,6 +122,7 @@ const resources = {
           noAccount: "Não tem uma conta?",
           registerLink: "Cadastre-se",
           authFailed: "Falha na autenticação:",
+          invalidCredentials: "Nome de usuário ou senha incorretos.",
           button: "Entrar",
           loading: "..."
         },
@@ -123,6 +131,9 @@ const resources = {
           username: "Nome de Usuário",
           email: "E-mail",
           password: "Senha",
+          confirmPassword: "Confirmar Senha",
+          passwordMismatch: "As senhas não coincidem.",
+          success: "Conta criada com sucesso! Faça login.",
           button: "Criar Conta",
           loading: "...",
           haveAccount: "Já tem uma conta?",
@@ -194,7 +205,10 @@ const resources = {
         status: {
           PENDING: "Pendente",
           ACCEPTED: "Aceito",
-          REJECTED: "Rejeitado"
+          REJECTED: "Rejeitado",
+          cancel: "Cancelar",
+          accept: "Aceitar",
+          reject: "Recusar"
         }
       },
       categories: {

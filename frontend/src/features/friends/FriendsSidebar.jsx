@@ -37,8 +37,9 @@ const FriendsSidebar = () => {
     <div className="card h-100 bg-light border-0">
       <div className="card-header bg-white border-bottom-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
         <h5 className="card-title mb-0">{t('friends.title')}</h5>
-        <Link to="/friends/search" className="btn btn-sm btn-outline-primary">
+        <Link to="/friends/search" className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2">
           <i className="bi bi-search"></i>
+          <span>{t('friends.searchTitle')}</span>
         </Link>
       </div>
       <div className="card-body overflow-auto">
@@ -56,32 +57,41 @@ const FriendsSidebar = () => {
           <div>
             <ul className="list-group list-group-flush">
               {allRelationships.map(friendship => (
-              <li key={friendship.id} className="list-group-item bg-transparent px-0 d-flex align-items-center">
-                <div className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style={{ width: '32px', height: '32px' }}>
-                  {friendship.friend?.username?.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-grow-1">
-                  <div className="fw-bold small">{friendship.friend?.username}</div>
-                  <div className="text-muted" style={{ fontSize: '0.75rem' }}>{t(`friends.status.${friendship.status}`, friendship.status)}</div>
+              <li key={friendship.id} className="list-group-item bg-transparent px-0 d-flex flex-column">
+                <div className="d-flex align-items-center w-100">
+                  <div className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{ width: '32px', height: '32px' }}>
+                    {friendship.friend?.username?.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-grow-1 text-truncate">
+                    <div className="fw-bold small text-truncate">{friendship.friend?.username}</div>
+                    <div className="text-muted" style={{ fontSize: '0.75rem' }}>{t(`friends.status.${friendship.status}`, friendship.status)}</div>
+                  </div>
                 </div>
                 {friendship.status === 'PENDING' && (
-                  <div className="d-flex gap-1 ms-2">
-                    <button 
-                      className="btn btn-success d-flex align-items-center justify-content-center rounded-circle p-0" 
-                      style={{ width: '32px', height: '32px' }}
-                      onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'ACCEPTED')}
-                      title="Accept"
-                    >
-                      <i className="bi bi-check-lg"></i>
-                    </button>
-                    <button 
-                      className="btn btn-outline-danger d-flex align-items-center justify-content-center rounded-circle p-0" 
-                      style={{ width: '32px', height: '32px' }}
-                      onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'REJECTED')}
-                      title="Reject"
-                    >
-                      <i className="bi bi-x-lg"></i>
-                    </button>
+                  <div className="d-flex gap-2 mt-2 w-100 ps-5">
+                    {friendship.is_initiator ? (
+                      <button 
+                        className="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-1" 
+                        onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'REJECTED')}
+                      >
+                        <i className="bi bi-x-circle"></i> {t('friends.status.cancel', 'Cancel')}
+                      </button>
+                    ) : (
+                      <>
+                        <button 
+                          className="btn btn-sm btn-success flex-grow-1 d-flex align-items-center justify-content-center gap-1" 
+                          onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'ACCEPTED')}
+                        >
+                          <i className="bi bi-check-circle"></i> {t('friends.status.accept', 'Accept')}
+                        </button>
+                        <button 
+                          className="btn btn-sm btn-outline-danger flex-grow-1 d-flex align-items-center justify-content-center gap-1" 
+                          onClick={() => handleRespond(friendship.friend?.id || friendship.id, 'REJECTED')}
+                        >
+                          <i className="bi bi-x-circle"></i> {t('friends.status.reject', 'Reject')}
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </li>
