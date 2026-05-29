@@ -1,0 +1,23 @@
+# Especificações e arquivos gerados pelo SpecKit
+specs/
+.specify/memory/specs/
+*.spec.md
+*.plan.md
+*.tasks.md
+
+# Node
+.vite/
+node_modules/
+dist/
+build/
+*.log
+.env*
+coverage/
+
+# Misc
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
