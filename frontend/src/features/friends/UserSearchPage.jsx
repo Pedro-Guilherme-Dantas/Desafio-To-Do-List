@@ -27,6 +27,22 @@ const UserSearchPage = () => {
 
   const allRelationships = [...friendships, ...friendRequests]
 
+  // Extract current user ID from JWT token
+  const currentUserId = React.useMemo(() => {
+    try {
+      const token = localStorage.getItem('access')
+      if (!token) return null
+      const base64Url = token.split('.')[1]
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      const payload = JSON.parse(window.atob(base64))
+      return payload.user_id || payload.id || payload.sub
+    } catch (e) {
+      return null
+    }
+  }, [])
+
+  const filteredResults = results.filter(u => u.id !== currentUserId)
+
   const [sentRequests, setSentRequests] = useState(new Set())
 
   const respondMutation = useMutation({
@@ -103,9 +119,9 @@ const UserSearchPage = () => {
               <br/>
               <small>Status Code: {error?.response?.status}</small>
             </div>
-          ) : results.length > 0 ? (
+          ) : filteredResults.length > 0 ? (
             <ul className="list-group">
-              {results.map(user => {
+              {filteredResults.map(user => {
                 const relationship = allRelationships.find(f => f.friend?.id === user.id)
                 const isSent = sentRequests.has(user.id)
                 
