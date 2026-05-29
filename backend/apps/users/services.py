@@ -99,6 +99,14 @@ class FriendshipService:
         ).select_related('user1', 'user2')
 
     @staticmethod
+    def get_pending_requests(user: User):
+        from django.db.models import Q
+        return Friendship.objects.filter(
+            Q(user1=user) | Q(user2=user),
+            status='PENDING'
+        ).select_related('user1', 'user2')
+
+    @staticmethod
     def remove_friendship(user: User, friend_id: int):
         from django.db.models import Q
         friendship = Friendship.objects.filter(
