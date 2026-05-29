@@ -1,9 +1,9 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 from .views import RegisterView, ProfileView, FriendshipViewSet, FriendshipAcceptView, UserListView
 
-router = DefaultRouter()
+router = SimpleRouter()
 router.register(r'friendships', FriendshipViewSet, basename='friendship')
 
 urlpatterns = [

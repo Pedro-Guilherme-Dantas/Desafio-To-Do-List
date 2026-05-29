@@ -8,6 +8,7 @@ import RegisterPage from './features/auth/RegisterPage'
 const queryClient = new QueryClient()
 
 import DashboardPage from './features/tasks/DashboardPage'
+import UserSearchPage from './features/friends/UserSearchPage'
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -29,6 +30,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/friends/search" 
+              element={
+                <ProtectedRoute>
+                  <UserSearchPage />
                 </ProtectedRoute>
               } 
             />

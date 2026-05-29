@@ -52,6 +52,20 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
 ## 👤 Usuário (Profile)
 *Requer Autenticação JWT (Bearer)*
 
+### `GET /api/users/`
+- **Descrição**: Retorna a lista de usuários, permitindo busca pelo nome de usuário ou e-mail.
+- **Query Params**: `?search=joao`
+- **Response** `200 OK`:
+  ```json
+  [
+    {
+      "id": 1,
+      "username": "joao_silva",
+      "email": "joao@example.com"
+    }
+  ]
+  ```
+
 ### `GET /api/users/me/`
 - **Descrição**: Retorna os dados do usuário autenticado.
 - **Response** `200 OK`:
@@ -91,6 +105,24 @@ Este documento lista todos os endpoints da API, os métodos suportados, o que é
       },
       "status": "ACCEPTED",
       "created_at": "2026-05-28T10:00:00Z"
+    }
+  ]
+  ```
+
+### `GET /api/users/friendships/requests/`
+- **Descrição**: Lista todas as solicitações de amizade pendentes (tanto enviadas quanto recebidas).
+- **Response** `200 OK`:
+  ```json
+  [
+    {
+      "id": 16,
+      "friend": {
+        "id": 2,
+        "username": "maria",
+        "email": "maria@example.com"
+      },
+      "status": "PENDING",
+      "created_at": "2026-05-28T10:05:00Z"
     }
   ]
   ```

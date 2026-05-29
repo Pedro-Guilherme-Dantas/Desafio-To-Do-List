@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchTaskMembers, fetchTaskComments, addTaskComment } from '../features/tasks/collaborationApi'
+import { fetchTaskMembers, fetchTaskComments, addTaskComment, addTaskMember, removeTaskMember } from '../features/tasks/collaborationApi'
+import { fetchFriends } from '../features/friends/api'
 import ManageCategoriesModal from './ManageCategoriesModal'
 import EditTaskModal from '../features/tasks/EditTaskModal'
 
@@ -9,6 +10,7 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
   const [newComment, setNewComment] = useState('')
   const [showCategoryManager, setShowCategoryManager] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedFriendId, setSelectedFriendId] = useState('')
   const queryClient = useQueryClient()
 
   // Only fetch comments and members if expanded
@@ -24,11 +26,32 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
     enabled: expanded
   })
 
+  const { data: friends = [] } = useQuery({
+    queryKey: ['friends'],
+    queryFn: fetchFriends,
+    enabled: expanded
+  })
+
   const addCommentMutation = useMutation({
     mutationFn: addTaskComment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['taskComments', task.id] })
       setNewComment('')
+    }
+  })
+
+  const addMemberMutation = useMutation({
+    mutationFn: addTaskMember,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['taskMembers', task.id] })
+      setSelectedFriendId('')
+    }
+  })
+
+  const removeMemberMutation = useMutation({
+    mutationFn: removeTaskMember,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['taskMembers', task.id] })
     }
   })
 
@@ -49,6 +72,18 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
     if (newComment.trim()) {
       addCommentMutation.mutate({ taskId: task.id, text: newComment })
     }
+  }
+
+  const handleAddMember = (e) => {
+    e.preventDefault()
+    if (selectedFriendId) {
+      addMemberMutation.mutate({ taskId: task.id, userId: selectedFriendId, role: 'EDITOR' })
+    }
+  }
+
+  const handleRemoveMember = (e, memberId) => {
+    e.stopPropagation()
+    removeMemberMutation.mutate({ taskId: task.id, memberId })
   }
 
   const priorityColors = {
@@ -116,17 +151,44 @@ const TaskCard = ({ task, onUpdate, onExpand }) => {
             <div className="mb-3">
               <h6 className="small fw-bold">Members</h6>
               {members.length === 0 ? (
-                <span className="text-muted small">No members</span>
+                <div className="text-muted small mb-2">No members</div>
               ) : (
-                <div className="d-flex flex-wrap gap-2">
+                <div className="d-flex flex-wrap gap-2 mb-2">
                   {members.map(member => (
-                    <span key={member.id} className="badge bg-secondary">
-                      {member.user.username}
+                    <span key={member.id} className="badge bg-secondary d-flex align-items-center">
+                      {member.user?.username}
+                      <i 
+                        className="bi bi-x ms-1" 
+                        style={{ cursor: 'pointer' }}
+                        onClick={(e) => handleRemoveMember(e, member.user?.id || member.id)}
+                      ></i>
                     </span>
                   ))}
                 </div>
               )}
-              {/* Assign member UI could go here */}
+              <form onSubmit={handleAddMember} className="mt-2" onClick={e => e.stopPropagation()}>
+                <div className="input-group input-group-sm">
+                  <select 
+                    className="form-select"
+                    value={selectedFriendId}
+                    onChange={e => setSelectedFriendId(e.target.value)}
+                  >
+                    <option value="">Select a friend to add...</option>
+                    {friends.map(friendship => (
+                      <option key={friendship.friend?.id} value={friendship.friend?.id}>
+                        {friendship.friend?.username}
+                      </option>
+                    ))}
+                  </select>
+                  <button 
+                    className="btn btn-outline-primary" 
+                    type="submit" 
+                    disabled={addMemberMutation.isPending || !selectedFriendId}
+                  >
+                    Add
+                  </button>
+                </div>
+              </form>
             </div>
 
             <div>
