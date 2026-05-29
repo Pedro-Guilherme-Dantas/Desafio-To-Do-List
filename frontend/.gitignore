@@ -6,6 +6,7 @@ specs/
 *.tasks.md
 
 # Node
+.vite/
 node_modules/
 dist/
 build/

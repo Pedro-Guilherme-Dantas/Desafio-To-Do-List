@@ -58,7 +58,8 @@ const LoginPage = () => {
           <div className="mb-3">
             <label className="form-label">Username</label>
             <input 
-              type="text" 
+              type="text"
+              name="username"
               className="form-control" 
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -68,7 +69,8 @@ const LoginPage = () => {
           <div className="mb-3">
             <label className="form-label">Password</label>
             <input 
-              type="password" 
+              type="password"
+              name="password"
               className="form-control" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}

@@ -7,16 +7,7 @@ import RegisterPage from './features/auth/RegisterPage'
 // Create a client
 const queryClient = new QueryClient()
 
-// Simple placeholder for the Dashboard to test Auth redirects
-const DashboardPlaceholder = () => (
-  <div className="container mt-5 text-center">
-    <h2>Dashboard (Em construção)</h2>
-    <button className="btn btn-danger mt-3" onClick={() => {
-      localStorage.removeItem('access')
-      window.location.href = '/login'
-    }}>Sair</button>
-  </div>
-)
+import DashboardPage from './features/tasks/DashboardPage'
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -37,7 +28,7 @@ function App() {
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  <DashboardPlaceholder />
+                  <DashboardPage />
                 </ProtectedRoute>
               } 
             />
