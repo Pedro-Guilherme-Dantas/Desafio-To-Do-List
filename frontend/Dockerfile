@@ -1,13 +1,22 @@
-FROM node:22-alpine
+FROM node:22-alpine as build
 
 WORKDIR /app
 
-# Ensure correct permissions
-RUN mkdir -p /app && chown -R node:node /app
+COPY package*.json ./
 
-# Non-root user
-# USER node
+RUN npm install
 
-# In development we map the volume, but we still want to be able to install packages.
-# Start command will handle dev server.
-CMD npm install && npm run dev -- --host 0.0.0.0
+COPY . .
+
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
+RUN npm run build
+
+FROM nginx:alpine
+
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
