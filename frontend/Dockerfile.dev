@@ -1,0 +1,8 @@
+FROM node:22-alpine
+
+# Instala o Chromium e cria um alias para o Selenium encontrá-lo
+RUN apk update && \
+    apk add --no-cache chromium chromium-chromedriver && \
+    ln -sf /usr/bin/chromium-browser /usr/bin/google-chrome
+
+WORKDIR /app

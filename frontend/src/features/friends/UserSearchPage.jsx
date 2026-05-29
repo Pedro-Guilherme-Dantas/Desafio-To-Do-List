@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { searchUsers, sendFriendRequest, fetchFriends, fetchFriendRequests, respondFriendRequest } from './api'
 import { Link } from 'react-router-dom'
 
 const UserSearchPage = () => {
+  const { t } = useTranslation()
   const [searchInput, setSearchInput] = useState('')
   const [activeQuery, setActiveQuery] = useState('')
   const queryClient = useQueryClient()
@@ -24,6 +26,22 @@ const UserSearchPage = () => {
   })
 
   const allRelationships = [...friendships, ...friendRequests]
+
+  // Extract current user ID from JWT token
+  const currentUserId = React.useMemo(() => {
+    try {
+      const token = localStorage.getItem('access')
+      if (!token) return null
+      const base64Url = token.split('.')[1]
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      const payload = JSON.parse(window.atob(base64))
+      return payload.user_id || payload.id || payload.sub
+    } catch (e) {
+      return null
+    }
+  }, [])
+
+  const filteredResults = results.filter(u => u.id !== currentUserId)
 
   const [sentRequests, setSentRequests] = useState(new Set())
 
@@ -68,31 +86,31 @@ const UserSearchPage = () => {
     <div className="container py-4">
       <div className="mb-4">
         <Link to="/" className="text-decoration-none">
-          <i className="bi bi-arrow-left me-2"></i>Back to Dashboard
+          <i className="bi bi-arrow-left me-2"></i>{t('dashboard.title')}
         </Link>
       </div>
       
       <div className="card shadow-sm mx-auto" style={{ maxWidth: '600px' }}>
         <div className="card-body">
-          <h4 className="card-title mb-4">Find Friends</h4>
+          <h4 className="card-title mb-4">{t('friends.searchTitle')}</h4>
           
           <form onSubmit={handleSearch} className="mb-4">
             <div className="input-group">
               <input 
                 type="text" 
                 className="form-control" 
-                placeholder="Search users by name..."
+                placeholder={t('friends.searchPlaceholder')}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
               />
-              <button className="btn btn-primary" type="submit">Search</button>
+              <button className="btn btn-primary" type="submit">{t('friends.searchButton')}</button>
             </div>
           </form>
 
           {isLoading ? (
             <div className="text-center py-4">
               <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
+                <span className="visually-hidden">{t('friends.loading')}</span>
               </div>
             </div>
           ) : isError ? (
@@ -101,9 +119,9 @@ const UserSearchPage = () => {
               <br/>
               <small>Status Code: {error?.response?.status}</small>
             </div>
-          ) : results.length > 0 ? (
+          ) : filteredResults.length > 0 ? (
             <ul className="list-group">
-              {results.map(user => {
+              {filteredResults.map(user => {
                 const relationship = allRelationships.find(f => f.friend?.id === user.id)
                 const isSent = sentRequests.has(user.id)
                 
@@ -124,22 +142,33 @@ const UserSearchPage = () => {
                         <span className="badge bg-secondary">Friends</span>
                       ) : relationship?.status === 'PENDING' ? (
                         <div className="d-flex gap-2">
-                          <button 
-                            className="btn btn-sm btn-success" 
-                            onClick={() => handleRespond(relationship.id, 'ACCEPTED')}
-                          >
-                            Accept
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-danger" 
-                            onClick={() => handleRespond(relationship.id, 'REJECTED')}
-                          >
-                            Reject
-                          </button>
+                          {relationship.is_initiator || isSent ? (
+                            <button 
+                              className="btn btn-sm btn-danger" 
+                              onClick={() => handleRespond(relationship.id, 'REJECTED')}
+                            >
+                              {t('friends.status.cancel', 'Cancel')}
+                            </button>
+                          ) : (
+                            <>
+                              <button 
+                                className="btn btn-sm btn-success" 
+                                onClick={() => handleRespond(relationship.id, 'ACCEPTED')}
+                              >
+                                {t('friends.status.accept', 'Accept')}
+                              </button>
+                              <button 
+                                className="btn btn-sm btn-danger" 
+                                onClick={() => handleRespond(relationship.id, 'REJECTED')}
+                              >
+                                {t('friends.status.reject', 'Reject')}
+                              </button>
+                            </>
+                          )}
                         </div>
                       ) : isSent ? (
                         <button className="btn btn-sm btn-secondary" disabled>
-                          Pending
+                          {t('friends.status.PENDING', 'Pending')}
                         </button>
                       ) : (
                         <button 
@@ -147,7 +176,7 @@ const UserSearchPage = () => {
                           onClick={() => addFriendMutation.mutate(user.id)}
                           disabled={addFriendMutation.isPending}
                         >
-                          Add Friend
+                          {t('friends.addFriend')}
                         </button>
                       )}
                     </div>
@@ -157,11 +186,11 @@ const UserSearchPage = () => {
             </ul>
           ) : activeQuery ? (
             <div className="text-center text-muted py-4">
-              No users found matching "{activeQuery}"
+              {t('friends.noUsersFound')} "{activeQuery}"
             </div>
           ) : (
             <div className="text-center text-muted py-4">
-              No users available.
+              {t('friends.noUsersFound')}
             </div>
           )}
         </div>

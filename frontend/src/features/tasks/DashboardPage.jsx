@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { fetchTasks, updateTask } from './api'
 import TaskColumn from '../../components/TaskColumn'
 import CreateTaskModal from './CreateTaskModal'
 import FriendsSidebar from '../friends/FriendsSidebar'
 import TaskFilterBar from './TaskFilterBar'
+import LanguageSelector from '../../components/LanguageSelector'
 import { useAuth } from '../auth/useAuth'
 
 const DashboardPage = () => {
+  const { t } = useTranslation()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [filters, setFilters] = useState({})
   const queryClient = useQueryClient()
@@ -90,13 +93,14 @@ const DashboardPage = () => {
   return (
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Dashboard</h2>
-        <div>
-          <button className="btn btn-outline-secondary me-2" onClick={logout}>
-            <i className="bi bi-box-arrow-right me-2"></i>Logout
+        <h2>{t('dashboard.title')}</h2>
+        <div className="d-flex align-items-center gap-2">
+          <LanguageSelector />
+          <button className="btn btn-outline-secondary" onClick={logout}>
+            <i className="bi bi-box-arrow-right me-2"></i>{t('dashboard.logout')}
           </button>
           <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-            <i className="bi bi-plus-lg me-2"></i>New Task
+            <i className="bi bi-plus-lg me-2"></i>{t('dashboard.newTask')}
           </button>
         </div>
       </div>
@@ -108,20 +112,20 @@ const DashboardPage = () => {
           {isLoading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
+                <span className="visually-hidden">{t('dashboard.loading')}</span>
               </div>
             </div>
           ) : isError ? (
-            <div className="alert alert-danger">Error loading tasks.</div>
+            <div className="alert alert-danger">{t('dashboard.error')}</div>
           ) : (
             <>
               <div className="row flex-nowrap overflow-auto pb-4" style={{ minHeight: '70vh' }}>
-                <TaskColumn title="Today" tasks={categorized.today} onUpdateTask={handleUpdateTask} />
-                <TaskColumn title="Next 3 Days" tasks={categorized.next3Days} onUpdateTask={handleUpdateTask} />
-                <TaskColumn title="Next 5 Days" tasks={categorized.next5Days} onUpdateTask={handleUpdateTask} />
-                <TaskColumn title="Next Weeks" tasks={categorized.nextWeeks} onUpdateTask={handleUpdateTask} />
-                <TaskColumn title="Next Month" tasks={categorized.nextMonth} onUpdateTask={handleUpdateTask} />
-                <TaskColumn title="No Deadline" tasks={categorized.noDeadline} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title={t('dashboard.columns.today')} tasks={categorized.today} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title={t('dashboard.columns.noDeadline')} tasks={categorized.noDeadline} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title={t('dashboard.columns.next3Days')} tasks={categorized.next3Days} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title={t('dashboard.columns.next5Days')} tasks={categorized.next5Days} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title={t('dashboard.columns.nextWeeks')} tasks={categorized.nextWeeks} onUpdateTask={handleUpdateTask} />
+                <TaskColumn title={t('dashboard.columns.nextMonth')} tasks={categorized.nextMonth} onUpdateTask={handleUpdateTask} />
               </div>
               {hasNextPage && (
                 <div className="text-center mt-3 mb-4">
@@ -130,7 +134,7 @@ const DashboardPage = () => {
                     onClick={() => fetchNextPage()} 
                     disabled={isFetchingNextPage}
                   >
-                    {isFetchingNextPage ? 'Loading more...' : 'Load More Tasks'}
+                    {isFetchingNextPage ? t('dashboard.loadingMore') : t('dashboard.loadMore')}
                   </button>
                 </div>
               )}

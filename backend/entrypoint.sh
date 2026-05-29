@@ -13,7 +13,9 @@ while ! nc -z redis 6379; do
 done
 echo "Redis started."
 
-echo "Applying database migrations..."
-python manage.py migrate
+if [ "$1" = "python" ]; then
+  echo "Applying database migrations..."
+  python manage.py migrate
+fi
 
 exec "$@"

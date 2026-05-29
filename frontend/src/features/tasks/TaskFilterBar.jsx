@@ -1,6 +1,8 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 const TaskFilterBar = ({ filters, onFilterChange }) => {
+  const { t } = useTranslation()
   const handleChange = (e) => {
     const { name, value } = e.target
     onFilterChange({ ...filters, [name]: value })
@@ -11,7 +13,7 @@ const TaskFilterBar = ({ filters, onFilterChange }) => {
       <div className="card-body py-2">
         <div className="row align-items-center">
           <div className="col-auto fw-bold text-muted">
-            <i className="bi bi-funnel me-2"></i>Filters:
+            <i className="bi bi-funnel me-2"></i>{t('filters.all', 'Filters:')}
           </div>
           <div className="col-md-3">
             <select 
@@ -20,7 +22,7 @@ const TaskFilterBar = ({ filters, onFilterChange }) => {
               value={filters.priority || ''} 
               onChange={handleChange}
             >
-              <option value="">All Priorities</option>
+              <option value="">{t('filters.priority', 'All Priorities')}</option>
               <option value="HIGH">High</option>
               <option value="MEDIUM">Medium</option>
               <option value="LOW">Low</option>
@@ -33,9 +35,9 @@ const TaskFilterBar = ({ filters, onFilterChange }) => {
               value={filters.status || ''} 
               onChange={handleChange}
             >
-              <option value="">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
+              <option value="">{t('filters.status', 'All Statuses')}</option>
+              <option value="completed">{t('filters.completed', 'Completed')}</option>
+              <option value="pending">{t('filters.pending', 'Pending')}</option>
             </select>
           </div>
           <div className="col-md-3">
