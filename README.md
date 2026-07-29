@@ -2,7 +2,6 @@
 
 Aplicação web completa para gerenciamento de tarefas, com suporte a compartilhamento entre amigos, permissões granulares, internacionalização (i18n) e notificações assíncronas.
 
-👉 Acesse o projeto em: http://3.144.152.1/
 
 ## 🏗 Arquitetura do Projeto
 
